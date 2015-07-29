@@ -1,0 +1,19 @@
+Executable = /afs/cern.ch/user/k/kelong/work/MCGenerators/MCFM-7.0/Bin/mcfm
+
+Output = ${condor_run_info}/stdout.$$(Cluster).$$(Process)
+Error = ${condor_run_info}/stderr.$$(Cluster).$$(Process)
+Log = ${condor_run_info}/condor_job.$$(Cluster).$$(Process).log
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = ${transfer_files}/input.DAT, ${transfer_files}/process.DAT
+
+transfer_output_files = *bbar_tot* 
+Initialdir = ${results}
+
+Universe = vanilla
+notification = Error
+Requirements = TARGET.Arch == "x86_64" && HasAFS_OSG && TARGET.UWCMS_CVMFS_Exists && TARGET.CMS_CVMFS_Exists
+
+getenv=True
+queue 1
