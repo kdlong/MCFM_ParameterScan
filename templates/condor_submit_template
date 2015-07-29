@@ -1,4 +1,4 @@
-Executable = /afs/cern.ch/user/k/kelong/work/MCGenerators/MCFM-7.0/Bin/mcfm
+Executable = ${transfer_files}/mcfm
 
 Output = ${condor_run_info}/stdout.$$(Cluster).$$(Process)
 Error = ${condor_run_info}/stderr.$$(Cluster).$$(Process)

@@ -61,6 +61,8 @@ def make_submit_files(process, scale, pdf, minmll, out_dir_base, dir_names):
     make_condor_submit(directories)
     shutil.copyfile("transfer_files/process.DAT",
             ''.join([directories["transfer_files"], "/", "process.DAT"]))
+    shutil.copyfile("transfer_files/mcfm",
+            ''.join([directories["transfer_files"], "/", "mcfm"]))
     return directories["condor_run_info"]
 scales = ["60", "91.1876", "dynscale", "182.3752"]
 mllcuts = ["60", "4", "12"]
