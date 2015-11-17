@@ -6,9 +6,8 @@ Log = ${condor_run_info}/condor_job.$$(Cluster).$$(Process).log
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = ${transfer_files}/input.DAT, ${transfer_files}/process.DAT
+transfer_input_files = ${transfer_files}/input.DAT, ${transfer_files}/process.DAT, ${transfer_files}/br.sm1, ${transfer_files}/br.sm2
 
-transfer_output_files = *bbar_tot* 
 Initialdir = ${results}
 
 Universe = vanilla
