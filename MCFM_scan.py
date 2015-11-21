@@ -91,8 +91,8 @@ def make_mcfm_input(process, seed, scale, pdf, minmll, out_dir):
             ren_scale *= 2
         elif "renDown" in scale:
             ren_scale *= 0.5
-        fill_dict["qcdscale"] = "%.01fd0" % ren_scale
-        fill_dict["facscale"] = "%.01fd0" % fac_scale
+        fill_dict["qcdscale"] = "%.02fd0" % ren_scale
+        fill_dict["facscale"] = "%.02fd0" % fac_scale
     fill_dict["dynamic"] = ".false." if "dyn" not in scale else "m(3456)"
     fill_dict.update(getPDFdict(pdf))
     fill_dict["order"] = "tota" if "ggZZ" not in process else "lord"
@@ -137,13 +137,8 @@ def make_submit_files(process, seed, scale, pdf, minmll, out_dir_base, dir_names
     return directories["condor_run_info"]
 #scales = 
 scales = ["dyn_facUp_renUp", "dyn_facDown_renDown", "dyn_facUp",
-        "dyn_renUp", "dyn_facDown", "dyn_renDown"]
+        "dyn_renUp", "dyn_facDown", "dyn_renDown", "dyn"]
 mllcuts = ["60"]
-processes = ["ZZ_eemm", "WpZ_mee", "WmZ_mee"]
-#processes = ["WpZ_mee", "WmZ_mee"]
-#processes = ["ggZZ_eemm"]
-#["WpZ_bbar", "WpZ_ddbar", "WpZ_uubar", "WmZ_bbar", "WmZ_ddbar", i
-
 
 
 args = getComLineArgs()
