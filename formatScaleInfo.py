@@ -31,10 +31,10 @@ for xsec_line, pdf_line, gg_line in zip(cross_secs, pdf_uncs, gg_results):
     xsec = float(re.findall('\d+.\d*', xsec_line)[-1])
     pdf_unc = float(re.findall('\d+.\d*', pdf_line)[-1])
     if args.remove_gg:
-        ggxsec = float(re.findall('\d+.\d*', gg_line)[-1])
+        ggxsec = float(re.findall('\d+.\d*', gg_line)[-2])
         xsec -= ggxsec
     elif args.ggonly:
-        xsec = float(re.findall('\d+.\d*', gg_line)[-1])
+        xsec = float(re.findall('\d+.\d*', gg_line)[-2])
     raw_results[path] = {"xsec" : xsec, "pdf_unc" : pdf_unc}
     sum_path = path.replace("WpZ", "WZ") if "WpZ" in path else path.replace("WmZ", "WZ")
     if sum_path not in summed_results:

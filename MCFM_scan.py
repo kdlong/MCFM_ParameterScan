@@ -19,7 +19,7 @@ def getComLineArgs():
     parser.add_argument("-e", "--energy", default="13000",
                         help="sqrt(s) in GeV (default 1300)")
     parser.add_argument("-p", "--processes",
-                        default= ["ZZ_eemm", "WpZ_mee", "WmZ_mee"],
+                        default=["WpZ_mee", "WmZ_mee"],
                         type=lambda x : [i.strip() for i in x.split(',')],
                         help="Processes to run")
     args = parser.parse_args()
@@ -77,7 +77,7 @@ def make_mcfm_input(process, seed, energy, scale, pdf, minmll, make_cuts, out_di
     }
     fill_dict = {}
     if process not in processes.keys():
-        print "Invalid process!"
+        print "%s is not a valid process!" % process
         exit(1)
     fill_dict["energy"] = energy
     fill_dict["process"] = processes[process]
@@ -158,4 +158,4 @@ for process in args.processes:
     for scale in scales:
         for mllcut in mllcuts:
             submit_dir = make_submit_files(process, args.rseed, args.energy, scale, args.pdf, mllcut, args.make_cuts, jobdir, dir_names)
-            #subprocess.call(["condor_submit", ''.join([submit_dir, "/submit_condor"])])
+            subprocess.call(["condor_submit", ''.join([submit_dir, "/submit_condor"])])
