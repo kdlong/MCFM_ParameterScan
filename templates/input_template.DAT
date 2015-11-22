@@ -16,7 +16,7 @@
 ${process}	 	[nproc]
 '${order}'  	[part 'lord','real' or 'virt','tota']
 '${name}'		['runstring']
-13000d0		[sqrts in GeV]
+${energy}d0		[sqrts in GeV]
 +1		[ih1 =1 for proton and -1 for antiproton]
 +1		[ih2 =1 for proton and -1 for antiproton]
 126d0		[hmass]

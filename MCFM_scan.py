@@ -14,6 +14,10 @@ def getComLineArgs():
                         help="PDF set to use")
     parser.add_argument("-n", "--job_name", type=str, default="",
                         help="Job name (todays date by default)")
+    parser.add_argument("-c", "--make_cuts", action='store_true',
+                        help="Do fiducial cuts")
+    parser.add_argument("-e", "--energy", default="13000",
+                        help="sqrt(s) in GeV (default 1300)")
     parser.add_argument("-p", "--processes",
                         default= ["ZZ_eemm", "WpZ_mee", "WmZ_mee"],
                         type=lambda x : [i.strip() for i in x.split(',')],
@@ -55,7 +59,7 @@ def getPDFdict(pdf):
         pdf_dict["LHAPDFgroup"] = "CT14nlo"
         pdf_dict["LHAPDFset"] = -1 
     return pdf_dict
-def make_mcfm_input(process, seed, scale, pdf, minmll, out_dir):
+def make_mcfm_input(process, seed, energy, scale, pdf, minmll, make_cuts, out_dir):
     processes = {"WpZ_mee": 71,
         "WmZ_mee" : 76,
         "WpZ_mvv" : 72,
@@ -75,6 +79,7 @@ def make_mcfm_input(process, seed, scale, pdf, minmll, out_dir):
     if process not in processes.keys():
         print "Invalid process!"
         exit(1)
+    fill_dict["energy"] = energy
     fill_dict["process"] = processes[process]
     fill_dict["name"] = process + "_minmll_" + minmll
     if "dyn" not in scale:
@@ -107,7 +112,7 @@ def make_mcfm_input(process, seed, scale, pdf, minmll, out_dir):
     fill_dict["m56min"] = minmll + "d0"
     fill_dict["m56max"] = "120d0"
     #fill_dict["m56max"] = "14000d0"
-    fill_dict["makecuts"] = ".true."
+    fill_dict["makecuts"] = ".true." if make_cuts else ".false."
     fillTemplatedFile("templates/input_template.DAT", 
         ''.join([out_dir, "/input.DAT"]), 
         fill_dict
@@ -117,14 +122,14 @@ def make_condor_submit(directories):
         ''.join([directories["condor_run_info"], "/", "submit_condor"]), 
         directories)
 
-def make_submit_files(process, seed, scale, pdf, minmll, out_dir_base, dir_names):
-    out_dir = ''.join([out_dir_base, "/", process, "_scale", scale.split(".")[0], "_minmll_", minmll])
+def make_submit_files(process, seed, energy, scale, pdf, minmll, make_cuts, out_dir_base, dir_names):
+    out_dir = '_'.join([out_dir_base + "/" + process, "scale" + scale.split(".")[0], energy + "GeV", "minmll", minmll])
     os.mkdir(out_dir)
     directories = {}
     for dir_name in dir_names:
         directories[dir_name] = ''.join([out_dir, "/", dir_name])
         os.mkdir(directories[dir_name])
-    make_mcfm_input(process, seed, scale, pdf, minmll, directories["transfer_files"])
+    make_mcfm_input(process, seed, energy, scale, pdf, minmll, make_cuts, directories["transfer_files"])
     make_condor_submit(directories)
     shutil.copyfile("transfer_files/process.DAT",
         ''.join([directories["transfer_files"], "/", "process.DAT"]))
@@ -143,7 +148,7 @@ mllcuts = ["60"]
 
 args = getComLineArgs()
 
-condor_base_dir = "/data/kelong/MCFM_ParameterScan"
+condor_base_dir = "/data/kelong/MCFM_ParameterScan/jobs"
 job_name = args.job_name
 jobdir = ''.join([condor_base_dir, "/", job_name])
 os.mkdir(jobdir)
@@ -152,5 +157,5 @@ dir_names = ["results", "condor_run_info", "transfer_files"]
 for process in args.processes:
     for scale in scales:
         for mllcut in mllcuts:
-            submit_dir = make_submit_files(process, args.rseed, scale, args.pdf, mllcut, jobdir, dir_names)
-            subprocess.call(["condor_submit", ''.join([submit_dir, "/submit_condor"])])
+            submit_dir = make_submit_files(process, args.rseed, args.energy, scale, args.pdf, mllcut, args.make_cuts, jobdir, dir_names)
+            #subprocess.call(["condor_submit", ''.join([submit_dir, "/submit_condor"])])
