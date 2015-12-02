@@ -42,8 +42,8 @@ for xsec_line, pdf_line, gg_line in zip(cross_secs, pdf_uncs, gg_results):
     else:
         summed_results[sum_path]["xsec"] += xsec
         summed_results[sum_path]["pdf_unc"] += pdf_unc
-scale_strings = ["dyn_facDown_renDown", "dyn_facUp_renUp", "dyn_renDown", "dyn_facUp_m",
-        "dyn_facDown_m", "dyn_renUp", "dyn_m"]
+scale_strings = ["dyn_facDown_renDown", "dyn_facUp_renUp", "dyn_renDown", "dyn_facUp",
+        "dyn_facDown", "dyn_renUp", "dyn"]
 for process in args.processes:
     scale_results = OrderedDict.fromkeys(scale_strings, {"xsec" : 0, "pdf_unc" : 0})
     print "Results for process %s" % process
@@ -51,11 +51,11 @@ for process in args.processes:
         if process not in key: 
             continue
         for scale in scale_strings:
-            if scale in key:
+            if scale in key and "_".join([scale, "ren"]) not in key and "_".join([scale, "fac"]) not in key:
                 scale_results[scale] = value
     names = ["Central", "PDF", "Max Scale", "Min scale", "FacDownRenDown",  \
             "facUprenUp", "renDown", "facUp", "facDown", "renUp"]
-    info = [str(scale_results["dyn_m"]["xsec"]), str(scale_results["dyn_m"]["pdf_unc"])]
+    info = [str(scale_results["dyn"]["xsec"]), str(scale_results["dyn"]["pdf_unc"])]
     scale_values = [value["xsec"] for value in scale_results.values()[:-1]]
     info += [str(max(scale_values)), str(min(scale_values))]
     format_string = " ".join(["{%i:^15}" %i for i in xrange(0,10)])
