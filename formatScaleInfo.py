@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--folder", type=str, required=True)
 parser.add_argument("--remove_gg", action='store_true')
 parser.add_argument("--format_as_data", action='store_true')
+parser.add_argument("--removebr", action='store_true')
 parser.add_argument("--ggonly", action='store_true')
 parser.add_argument("-p", "--processes",
                     type=lambda x : [i.strip() for i in x.split(',')],
@@ -66,8 +67,15 @@ for process in args.processes:
     else:
         # Format as <energy> <central xsec> <scale up> <scale down> <pdf uncertainty>
         energy = str(float(re.findall('\d+', args.folder)[-1])/1000)
-        print " ".join([energy, str(info[0])] +
-            [str(value["xsec"]) for value in scale_results.values()[:2]] +
-            [str(info[1])])
+        scale = 1
+        if args.removebr:
+            if "ZZ" in process:
+                #In pb
+                scale = 0.5/(1000*0.0363*0.0366)
+            elif "WZ" in process:
+                scale = 1/(1000*0.0363*0.1057)
+        print " ".join([energy, str(float(info[0])*scale)] +
+            [str(value["xsec"]*scale) for value in scale_results.values()[:2]] +
+            [str(float(info[1])*scale)])
     #print "\t\t".join(info + [str(value["xsec"]) for value in scale_results.values()[:-1]])
 
