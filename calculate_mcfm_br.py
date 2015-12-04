@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 
+################################################################################
 # From src/User/mdata.f
+################################################################################
 #      data ewscheme  / +1                  /   ! Chooses EW scheme
 #      data Gf_inp    / 1.16639d-5          /   ! G_F
 #      data aemmz_inp / 7.7585538055706d-03 /   ! alpha_EM(m_Z)=1/128.89
 #      data xw_inp    / 0.2312d0            /   ! sin^2(theta_W)
 #      data wmass_inp / 80.398d0            /   ! W mass
 #      data zmass_inp / 91.1876d0           /   ! Z mass
-
+################################################################################
 # ewcheme tells which scheme of experimental input is used, i.e. which of these
 # values are taken as constants and which are derived. These are defined in
 # src/Need/coupling.f The defaults is 1. 
-
 # From src/Need/coupling.f:
+################################################################################
 #c-----------------------------------------------------
 #c     option=1 : LUSIFER and AlpGen (iewopt=3) default
 #c-----------------------------------------------------
@@ -34,6 +36,7 @@
 #      gw=dsqrt(gwsq)
 ################################################################################
 # Branching ratios are actually calculated in src/Need/branch.f
+################################################################################
 #      facz=esq/4d0*zmass/(6d0*pi)
 #      facw=gwsq/8d0*wmass/(6d0*pi)
 #
@@ -49,6 +52,7 @@
 #      brtau=factau/tauwidth
 ################################################################################
 #Some of these parameters are defined in src/Need/mcfm_init.f
+################################################################################
 #
 #c---  Widths: note that the top width is calculated in the program
 #c---  The W width of 2.1054 is derived using the measured BR of
@@ -59,12 +63,13 @@
 #      tauwidth=2.269d-12
 ################################################################################
 # From src/Need/couplz.f
+################################################################################
 #      sin2w=two*sqrt(xw*(1d0-xw))
 #      le=(-1d0-two*(-1d0)*xw)/sin2w
 #      re=(-two*(-1d0)*xw)/sin2w
 
-# From src/Need/coupling.f
 import math
+# From src/User/mdata.f
 Gf = 1.16639e-5          #   ! G_Fermi
 aemmz = 7.7585538055706e-03   # alpha_EM(m_Z)=1/128.89
 wmass = 80.398            # W mass
