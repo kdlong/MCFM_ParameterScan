@@ -9,6 +9,7 @@ from collections import OrderedDict
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--folder", type=str, required=True)
 parser.add_argument("--remove_gg", action='store_true')
+parser.add_argument("--format_as_data", action='store_true')
 parser.add_argument("--ggonly", action='store_true')
 parser.add_argument("-p", "--processes",
                     type=lambda x : [i.strip() for i in x.split(',')],
@@ -46,7 +47,6 @@ scale_strings = ["dyn_facDown_renDown", "dyn_facUp_renUp", "dyn_renDown", "dyn_f
         "dyn_facDown", "dyn_renUp", "dyn"]
 for process in args.processes:
     scale_results = OrderedDict.fromkeys(scale_strings, {"xsec" : 0, "pdf_unc" : 0})
-    print "Results for process %s" % process
     for key, value in summed_results.iteritems():
         if process not in key: 
             continue
@@ -58,8 +58,16 @@ for process in args.processes:
     info = [str(scale_results["dyn"]["xsec"]), str(scale_results["dyn"]["pdf_unc"])]
     scale_values = [value["xsec"] for value in scale_results.values()[:-1]]
     info += [str(max(scale_values)), str(min(scale_values))]
-    format_string = " ".join(["{%i:^15}" %i for i in xrange(0,10)])
-    print format_string.format(*names)
-    print format_string.format(*(info + [str(value["xsec"]) for value in scale_results.values()[:-1]]))
+    if not args.format_as_data:
+        print "Results for process %s" % process
+        format_string = " ".join(["{%i:^15}" %i for i in xrange(0,10)])
+        print format_string.format(*names)
+        print format_string.format(*(info + [str(value["xsec"]) for value in scale_results.values()[:-1]]))
+    else:
+        # Format as <energy> <central xsec> <scale up> <scale down> <pdf uncertainty>
+        energy = str(float(re.findall('\d+', args.folder)[-1])/1000)
+        print " ".join([energy, str(info[0])] +
+            [str(value["xsec"]) for value in scale_results.values()[:2]] +
+            [str(info[1])])
     #print "\t\t".join(info + [str(value["xsec"]) for value in scale_results.values()[:-1]])
 
