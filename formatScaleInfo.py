@@ -71,9 +71,9 @@ for process in args.processes:
         if args.removebr:
             if "ZZ" in process:
                 #In pb
-                scale = 0.5/(1000*0.0363*0.0366)
+                scale = 0.5/(1000*0.03366*0.0366)
             elif "WZ" in process:
-                scale = 1/(1000*0.0363*0.1057)
+                scale = 1/(1000*0.03366*0.1080)
         print " ".join([energy, str(float(info[0])*scale)] +
             [str(value["xsec"]*scale) for value in scale_results.values()[:2]] +
             [str(float(info[1])*scale)])
