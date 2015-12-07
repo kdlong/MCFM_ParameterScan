@@ -7,6 +7,6 @@ count=$4
 iter=$begin
 while [ $iter -le $end ]; do
     DATE=`date +%Y-%m-%d`
-    ./MCFM_scan.py -n ${process}_ZWAremovebr_${DATE}_${iter}GeV -e ${iter} -r $[ 1 + $[ RANDOM % 500 ]]
+    ./MCFM_scan.py -n ${process}_${DATE}_${iter}GeV -e ${iter} -r $[ 1 + $[ RANDOM % 500 ]] -p $1
     iter=$(( iter + count ))
 done

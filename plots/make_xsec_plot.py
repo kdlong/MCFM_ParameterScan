@@ -5,6 +5,55 @@ import argparse
 import os
 from array import array
 
+def errorPlotFromFile(file_name):
+    xvals = []
+    central = []
+    errorup = []
+    errordown = []
+    error2up = []
+    error2down = []
+    num_lines = 0
+    with open(file_name) as input_file:
+        for line in input_file:
+            num_lines += 1
+            values = line.split()
+            if len(values) < 2:
+                print "Invalid input file %s" % file_name
+                exit(0)
+            xvals.append(float(values[0]))
+            central.append(float(values[1]))
+            if len(values) < 4:
+                print "No error values found in input file %s" % file_name
+                continue
+            if "%" in values[2]:
+                values[2] = float(values[1])*float(values[2].strip("%"))/100
+            if "%" in values[3]:
+                values[3] = float(values[1])*float(values[3].strip("%"))/100
+            errorup.append(float(values[2]))
+            errordown.append(float(values[3]))
+            if len(values) == 6:
+                error2down.append(float(values[2]) + float(values[4]))
+                error2up.append(float(values[3]) + float(values[5]))
+    error_graph = ROOT.TGraphAsymmErrors(num_lines,
+        array('f', xvals),
+        array('f', central),
+        array('f', [0 for val in xvals]), #No x errors
+        array('f', [0 for val in xvals]), #No x errors
+        array('f', errordown),
+        array('f', errorup)
+    )
+    syst_error_graph = 0
+    if len(error2up) != 0:
+        syst_error_graph = ROOT.TGraphAsymmErrors(num_lines,
+            array('f', xvals),
+            array('f', central),
+            array('f', [0 for val in xvals]), #No x errors
+            array('f', [0 for val in xvals]), #No x errors
+            array('f', error2down),
+            array('f', error2up)
+        )
+        
+    return (error_graph, syst_error_graph)
 ROOT.gROOT.SetBatch()
 parser = argparse.ArgumentParser()
 parser.add_argument("analysis", choices=["WZ", "ZZ"])
@@ -16,41 +65,102 @@ if not os.path.isfile(mc_file):
     print "Invalid data file %s" % mc_file
     exit(0)
 
-xsec_graph = ROOT.TGraph(mc_file)
-xsec_graph.SetLineColor(ROOT.kRed-6)
-scaleup_graph = ROOT.TGraph(mc_file, "%lg %*lg %lg")
-scaleup_graph.SetLineColor(ROOT.kGray)
-scaledown_graph = ROOT.TGraph(mc_file, "%lg %*lg %*lg %lg")
-scaledown_graph.SetLineColor(ROOT.kGray)
+(xsec_graph, pdf_errs) = errorPlotFromFile(mc_file)
+xsec_graph.SetLineColor(ROOT.TColor.GetColor("#FFE6EC"))
+xsec_graph.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
+xsec_graph.SetFillColor(ROOT.TColor.GetColor("#FFE6EC"))
+xsec_graph.SetLineWidth(1)
+pdf_errs.SetLineColor(ROOT.TColor.GetColor("#F8D4DA"))
+pdf_errs.SetFillColor(ROOT.TColor.GetColor("#F8D4DA"))
 
 canvas = ROOT.TCanvas("canvas", "canvas", 600, 600)
 
-data_graph = ROOT.TGraphAsymmErrors(3,
-    array('f', [7., 8., 13.]),
-    array('f', [20.76, 24.61, 40.2]),
-    array('f', [0, 0., 0.]),
-    array('f', [0, 0., 0.]),
-    array('f', [1.8, 1.74, 7.8]),
-    array('f', [1.8, 1.74, 8.43])
-) if args.analysis == "WZ" else ROOT.TGraphAsymmErrors(3,
-    array('f', [7., 8., 13.]),
-    array('f', [6.24, 7.7, 16.3]),
-    array('f', [0, 0., 0.]),
-    array('f', [0, 0., 0.]),
-    array('f', [0.87, 0.78, 3.34]),
-    array('f', [0.96, 0.84, 3.80])
-)
-data_graph.Draw("Ape1")
-ROOT.gStyle.SetEndErrorSize(6)
+(data_graph, sys_errors) = errorPlotFromFile("data/%s_CMS_measurements.txt" % args.analysis)
 data_graph.SetMarkerStyle(24)
-data_graph.SetLineWidth(2)
+data_graph.SetLineWidth(1)
 data_graph.SetMarkerSize(1)
-data_graph.GetXaxis().SetRangeUser(6, 14)
-data_graph.GetXaxis().SetTitle("#sqrt{s} (TeV)")
-data_graph.GetYaxis().SetTitle("Cross Section (pb)")
 
-xsec_graph.Draw("C same")
-scaleup_graph.Draw("C same")
-scaledown_graph.Draw("C same")
+sys_errors.SetMarkerColor(10)
+sys_errors.SetMarkerStyle(20)
+sys_errors.SetLineWidth(2)
+sys_errors.SetMarkerSize(1)
+(atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
+atlas_data_graph.SetMarkerStyle(26)
+atlas_data_graph.SetLineWidth(1)
+atlas_data_graph.SetMarkerSize(1)
+atlas_sys_errors.SetMarkerColor(10)
+atlas_sys_errors.SetMarkerStyle(22)
+atlas_sys_errors.SetLineWidth(2)
+atlas_sys_errors.SetMarkerSize(1)
 
-canvas.Print("%sCrossSection.pdf" % args.analysis)
+
+
+pdf_errs.SetMaximum(23 if args.analysis == "ZZ" else 55)
+if args.analysis == "ZZ":
+    pdf_errs.SetMinimum(2)
+
+pdf_errs.Draw("A3")
+pdf_errs.GetXaxis().SetRangeUser(5.6, 14.4)
+pdf_errs.GetXaxis().SetTitle("#sqrt{s} (TeV)")
+pdf_errs.GetYaxis().SetTitle("#sigma (pb)")
+xsec_graph.Draw("3")
+
+xsec_graph_clone = xsec_graph.Clone()
+xsec_graph_clone.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
+xsec_graph_clone.Draw("CX")
+
+if args.analysis == "ZZ":
+    nnlo_graph = errorPlotFromFile("data/ZZ_nnlo_values.txt")[0]
+    nnlo_graph.SetFillColor(ROOT.TColor.GetColor("#A3DFFF"))
+    nnlo_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+    nnlo_graph.Draw("3 same")
+    nnlo_graph_clone = nnlo_graph.Clone()
+    nnlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+    nnlo_graph_clone.Draw("CX")
+
+    (zz2l2v_data_graph, zz2l2v_sys_errors) = errorPlotFromFile("data/ZZ2l2v_CMS_measurements.txt")
+    zz2l2v_data_graph.SetMarkerStyle(25)
+    zz2l2v_data_graph.SetLineWidth(1)
+    zz2l2v_data_graph.SetMarkerSize(1)
+    zz2l2v_sys_errors.SetMarkerColor(10)
+    zz2l2v_sys_errors.SetMarkerStyle(21)
+    zz2l2v_sys_errors.SetLineWidth(2)
+    zz2l2v_sys_errors.SetMarkerSize(1)
+    zz2l2v_data_graph.Draw("P same")
+    zz2l2v_sys_errors.Draw("P same")
+
+data_graph.Draw("P same")
+sys_errors.Draw("P same")
+atlas_data_graph.Draw("P same")
+atlas_sys_errors.Draw("P same")
+ROOT.gStyle.SetEndErrorSize(4)
+#legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
+legend = ROOT.TLegend(*([0.20, 0.55, .60, .85] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
+legend.AddEntry(xsec_graph,
+        "#splitline{#sigma_{pp #rightarrow %s} NLO%s via MCFM}" 
+        "{#scale[0.6]{NNPDF3.0, dynamic #mu_F = #mu_R = M_{%s}}}" % 
+            (("ZZ", "+gg", "ZZ") if args.analysis == "ZZ" else ("WZ", "", "WZ")),
+        "lf"
+)
+if args.analysis == "ZZ":
+    legend.AddEntry(nnlo_graph,
+            "#splitline{#sigma_{pp #rightarrow ZZ} NNLO via Cascioli et. al.}"
+            "{#scale[0.6]{ MMSTW2008, fixed #mu_F = #mu_R = M_{Z}}}",
+            "lf"
+    )
+    legend.AddEntry(zz2l2v_data_graph,
+            "CMS ZZ #rightarrow 2l2#nu",
+            "p"
+    )
+legend.AddEntry(atlas_data_graph,
+        "ATLAS %s " % ("WZ#rightarrow 3l#nu" if args.analysis == "WZ" else "ZZ#rightarrow 4l"),
+        "p"
+)
+legend.AddEntry(data_graph,
+        "CMS %s " % ("WZ#rightarrow 3l#nu" if args.analysis == "WZ" else "ZZ#rightarrow 4l"),
+        "p"
+)
+legend.Draw()
+ROOT.gPad.RedrawAxis()
+
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection.pdf" % args.analysis)
