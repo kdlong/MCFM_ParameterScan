@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import ROOT
 import argparse
 import os
@@ -32,8 +33,8 @@ def errorPlotFromFile(file_name):
             errorup.append(float(values[2]))
             errordown.append(float(values[3]))
             if len(values) == 6:
-                error2down.append(float(values[2]) + float(values[4]))
-                error2up.append(float(values[3]) + float(values[5]))
+                error2down.append(math.sqrt(float(values[2])**2 + float(values[4])**2))
+                error2up.append(math.sqrt(float(values[3])**2 + float(values[5])**2))
     error_graph = ROOT.TGraphAsymmErrors(num_lines,
         array('f', xvals),
         array('f', central),
@@ -80,10 +81,10 @@ data_graph.SetMarkerStyle(24)
 data_graph.SetLineWidth(1)
 data_graph.SetMarkerSize(1)
 
-sys_errors.SetMarkerColor(10)
 sys_errors.SetMarkerStyle(20)
 sys_errors.SetLineWidth(2)
 sys_errors.SetMarkerSize(1)
+sys_errors.SetMarkerColor(10)
 (atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
 atlas_data_graph.SetMarkerStyle(26)
 atlas_data_graph.SetLineWidth(1)
@@ -102,7 +103,7 @@ if args.analysis == "ZZ":
 pdf_errs.Draw("A3")
 pdf_errs.GetXaxis().SetRangeUser(5.6, 14.4)
 pdf_errs.GetXaxis().SetTitle("#sqrt{s} (TeV)")
-pdf_errs.GetYaxis().SetTitle("#sigma (pb)")
+pdf_errs.GetYaxis().SetTitle("#sigma_{pp #rightarrow %s}(pb)" % args.analysis)
 xsec_graph.Draw("3")
 
 xsec_graph_clone = xsec_graph.Clone()
@@ -117,14 +118,22 @@ if args.analysis == "ZZ":
     nnlo_graph_clone = nnlo_graph.Clone()
     nnlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
     nnlo_graph_clone.Draw("CX")
+    
+    mcfm_nlo_graph = errorPlotFromFile("data/ZZ_MCFM_published_nlo_values.txt")[0]
+    mcfm_nlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#C2FFBD"), 0.4)
+    mcfm_nlo_graph.SetLineColor(ROOT.TColor.GetColor("#004D00"))
+    mcfm_nlo_graph.Draw("3 same")                               
+    mcfm_nlo_graph_clone = mcfm_nlo_graph.Clone()
+    mcfm_nlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#004D00"))
+    mcfm_nlo_graph_clone.Draw("CX")
 
     (zz2l2v_data_graph, zz2l2v_sys_errors) = errorPlotFromFile("data/ZZ2l2v_CMS_measurements.txt")
     zz2l2v_data_graph.SetMarkerStyle(25)
     zz2l2v_data_graph.SetLineWidth(1)
     zz2l2v_data_graph.SetMarkerSize(1)
-    zz2l2v_sys_errors.SetMarkerColor(10)
     zz2l2v_sys_errors.SetMarkerStyle(21)
     zz2l2v_sys_errors.SetLineWidth(2)
+    zz2l2v_sys_errors.SetMarkerColor(10)
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
@@ -135,29 +144,36 @@ atlas_data_graph.Draw("P same")
 atlas_sys_errors.Draw("P same")
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
-legend = ROOT.TLegend(*([0.20, 0.55, .60, .85] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
+legend = ROOT.TLegend(*([0.20, 0.55, .55, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
+if args.analysis == "ZZ":
+    legend.AddEntry(nnlo_graph,
+            "#splitline{#sigma_{NNLO} Cascioli et. al.}"
+            "{#scale[0.6]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
+            "lf"
+    )
+    legend.AddEntry(mcfm_nlo_graph,
+            "#splitline{#sigma_{NLO+gg} Campbell et. al.}"
+            "{#scale[0.6]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
+            "lf"
+    )
 legend.AddEntry(xsec_graph,
-        "#splitline{#sigma_{pp #rightarrow %s} NLO%s via MCFM}" 
-        "{#scale[0.6]{NNPDF3.0, dynamic #mu_F = #mu_R = M_{%s}}}" % 
-            (("ZZ", "+gg", "ZZ") if args.analysis == "ZZ" else ("WZ", "", "WZ")),
+       #"#sigma_{pp #rightarrow WZ} Theory",
+        "#splitline{#sigma_{NLO%s, M_{Z}#in[60, 120] GeV} MCFM}" 
+        "{#scale[0.6]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= M_{%s}}}" % 
+            (("+gg", "ZZ") if args.analysis == "ZZ" else ("", "WZ")),
         "lf"
 )
 if args.analysis == "ZZ":
-    legend.AddEntry(nnlo_graph,
-            "#splitline{#sigma_{pp #rightarrow ZZ} NNLO via Cascioli et. al.}"
-            "{#scale[0.6]{ MMSTW2008, fixed #mu_F = #mu_R = M_{Z}}}",
-            "lf"
-    )
     legend.AddEntry(zz2l2v_data_graph,
-            "CMS ZZ #rightarrow 2l2#nu",
+            "CMS #sigma_{pp #rightarrow ZZ}, 2l2#nu channel",
             "p"
     )
 legend.AddEntry(atlas_data_graph,
-        "ATLAS %s " % ("WZ#rightarrow 3l#nu" if args.analysis == "WZ" else "ZZ#rightarrow 4l"),
+        "ATLAS %s " % "#sigma_{pp #rightarrow %s}, %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
         "p"
 )
 legend.AddEntry(data_graph,
-        "CMS %s " % ("WZ#rightarrow 3l#nu" if args.analysis == "WZ" else "ZZ#rightarrow 4l"),
+        "CMS %s " % "#sigma_{pp #rightarrow %s}, %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
         "p"
 )
 legend.Draw()
