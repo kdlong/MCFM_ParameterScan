@@ -56,6 +56,7 @@ def errorPlotFromFile(file_name):
         
     return (error_graph, syst_error_graph)
 ROOT.gROOT.SetBatch()
+ROOT.dotrootImport('nsmith-/CMSPlotDecorations')
 parser = argparse.ArgumentParser()
 parser.add_argument("analysis", choices=["WZ", "ZZ"])
 
@@ -77,14 +78,14 @@ pdf_errs.SetFillColor(ROOT.TColor.GetColor("#F8D4DA"))
 canvas = ROOT.TCanvas("canvas", "canvas", 600, 600)
 
 (data_graph, sys_errors) = errorPlotFromFile("data/%s_CMS_measurements.txt" % args.analysis)
-data_graph.SetMarkerStyle(24)
+data_graph.SetMarkerStyle(20)
 data_graph.SetLineWidth(1)
 data_graph.SetMarkerSize(1)
 
 sys_errors.SetMarkerStyle(20)
 sys_errors.SetLineWidth(2)
 sys_errors.SetMarkerSize(1)
-sys_errors.SetMarkerColor(10)
+#sys_errors.SetMarkerColor(10)
 (atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
 atlas_data_graph.SetMarkerStyle(26)
 atlas_data_graph.SetLineWidth(1)
@@ -94,9 +95,7 @@ atlas_sys_errors.SetMarkerStyle(22)
 atlas_sys_errors.SetLineWidth(2)
 atlas_sys_errors.SetMarkerSize(1)
 
-
-
-pdf_errs.SetMaximum(23 if args.analysis == "ZZ" else 55)
+pdf_errs.SetMaximum(23 if args.analysis == "ZZ" else 57)
 if args.analysis == "ZZ":
     pdf_errs.SetMinimum(2)
 
@@ -128,12 +127,12 @@ if args.analysis == "ZZ":
     mcfm_nlo_graph_clone.Draw("CX")
 
     (zz2l2v_data_graph, zz2l2v_sys_errors) = errorPlotFromFile("data/ZZ2l2v_CMS_measurements.txt")
-    zz2l2v_data_graph.SetMarkerStyle(25)
+    zz2l2v_data_graph.SetMarkerStyle(21)
     zz2l2v_data_graph.SetLineWidth(1)
     zz2l2v_data_graph.SetMarkerSize(1)
     zz2l2v_sys_errors.SetMarkerStyle(21)
     zz2l2v_sys_errors.SetLineWidth(2)
-    zz2l2v_sys_errors.SetMarkerColor(10)
+    #zz2l2v_sys_errors.SetMarkerColor(10)
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
@@ -145,9 +144,22 @@ atlas_sys_errors.Draw("P same")
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 legend = ROOT.TLegend(*([0.20, 0.55, .55, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
+legend.AddEntry(data_graph,
+        "CMS %s " % "#sigma_{pp #rightarrow %s} %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
+        "p"
+)
+if args.analysis == "ZZ":
+    legend.AddEntry(zz2l2v_data_graph,
+            "CMS #sigma_{pp #rightarrow ZZ} 2l2#nu channel",
+            "p"
+    )
+legend.AddEntry(atlas_data_graph,
+        "ATLAS %s " % "#sigma_{pp #rightarrow %s} %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
+        "p"
+)
 if args.analysis == "ZZ":
     legend.AddEntry(nnlo_graph,
-            "#splitline{#sigma_{NNLO} Cascioli et. al.}"
+            "#splitline{#sigma_{NNLO (qq/qg/gg)} Cascioli et. al.}"
             "{#scale[0.6]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
             "lf"
     )
@@ -163,20 +175,8 @@ legend.AddEntry(xsec_graph,
             (("+gg", "ZZ") if args.analysis == "ZZ" else ("", "WZ")),
         "lf"
 )
-if args.analysis == "ZZ":
-    legend.AddEntry(zz2l2v_data_graph,
-            "CMS #sigma_{pp #rightarrow ZZ}, 2l2#nu channel",
-            "p"
-    )
-legend.AddEntry(atlas_data_graph,
-        "ATLAS %s " % "#sigma_{pp #rightarrow %s}, %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
-        "p"
-)
-legend.AddEntry(data_graph,
-        "CMS %s " % "#sigma_{pp #rightarrow %s}, %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
-        "p"
-)
 legend.Draw()
+ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
 canvas.Print("~/public_html/DibosonPlots/%sCrossSection.pdf" % args.analysis)
