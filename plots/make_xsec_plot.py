@@ -1,10 +1,13 @@
 #!/usr/bin/env python
-
+import sys
+import argparse
+tmparg = sys.argv[:]
+sys.argv = []
 import math
 import ROOT
-import argparse
 import os
 from array import array
+sys.argv = tmparg
 
 def errorPlotFromFile(file_name):
     xvals = []
@@ -23,7 +26,7 @@ def errorPlotFromFile(file_name):
                 exit(0)
             xvals.append(float(values[0]))
             central.append(float(values[1]))
-            if len(values) < 4:
+            if len(values) < 3:
                 print "No error values found in input file %s" % file_name
                 continue
             if "%" in values[2]:
@@ -53,16 +56,18 @@ def errorPlotFromFile(file_name):
             array('f', error2down),
             array('f', error2up)
         )
-        
     return (error_graph, syst_error_graph)
+parser = argparse.ArgumentParser()
 ROOT.gROOT.SetBatch()
 ROOT.dotrootImport('nsmith-/CMSPlotDecorations')
-parser = argparse.ArgumentParser()
 parser.add_argument("analysis", choices=["WZ", "ZZ"])
+parser.add_argument("--nodata", action='store_true')
+parser.add_argument("--include_lo", action='store_true')
 
 args = parser.parse_args()
 
 mc_file = "data/%s_scan_values_removebr.txt" % args.analysis
+#mc_file = "data/%s_MCFM_published_nlo_values.txt" % args.analysis
 if not os.path.isfile(mc_file):
     print "Invalid data file %s" % mc_file
     exit(0)
@@ -72,38 +77,40 @@ xsec_graph.SetLineColor(ROOT.TColor.GetColor("#FFE6EC"))
 xsec_graph.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
 xsec_graph.SetFillColor(ROOT.TColor.GetColor("#FFE6EC"))
 xsec_graph.SetLineWidth(1)
-pdf_errs.SetLineColor(ROOT.TColor.GetColor("#F8D4DA"))
-pdf_errs.SetFillColor(ROOT.TColor.GetColor("#F8D4DA"))
+if pdf_errs:
+    pdf_errs.SetLineColor(ROOT.TColor.GetColor("#F8D4DA"))
+    pdf_errs.SetFillColor(ROOT.TColor.GetColor("#F8D4DA"))
 
 canvas = ROOT.TCanvas("canvas", "canvas", 600, 600)
+if not args.nodata:
+    (data_graph, sys_errors) = errorPlotFromFile("data/%s_CMS_measurements.txt" % args.analysis)
+    data_graph.SetMarkerStyle(20)
+    data_graph.SetLineWidth(1)
+    data_graph.SetMarkerSize(1)
 
-(data_graph, sys_errors) = errorPlotFromFile("data/%s_CMS_measurements.txt" % args.analysis)
-data_graph.SetMarkerStyle(20)
-data_graph.SetLineWidth(1)
-data_graph.SetMarkerSize(1)
+    sys_errors.SetMarkerStyle(20)
+    sys_errors.SetLineWidth(2)
+    sys_errors.SetMarkerSize(1)
+    #sys_errors.SetMarkerColor(10)
+    (atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
+    atlas_data_graph.SetMarkerStyle(26)
+    atlas_data_graph.SetLineWidth(1)
+    atlas_data_graph.SetMarkerSize(1)
+    atlas_sys_errors.SetMarkerColor(10)
+    atlas_sys_errors.SetMarkerStyle(22)
+    atlas_sys_errors.SetLineWidth(2)
+    atlas_sys_errors.SetMarkerSize(1)
+first_plot = pdf_errs if pdf_errs else xsec_graph
+first_plot.SetMaximum(23 if args.analysis == "ZZ" else 57)
+if args.analysis == "ZZ" or args.include_lo:
+    first_plot.SetMinimum(2)
 
-sys_errors.SetMarkerStyle(20)
-sys_errors.SetLineWidth(2)
-sys_errors.SetMarkerSize(1)
-#sys_errors.SetMarkerColor(10)
-(atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
-atlas_data_graph.SetMarkerStyle(26)
-atlas_data_graph.SetLineWidth(1)
-atlas_data_graph.SetMarkerSize(1)
-atlas_sys_errors.SetMarkerColor(10)
-atlas_sys_errors.SetMarkerStyle(22)
-atlas_sys_errors.SetLineWidth(2)
-atlas_sys_errors.SetMarkerSize(1)
-
-pdf_errs.SetMaximum(23 if args.analysis == "ZZ" else 57)
-if args.analysis == "ZZ":
-    pdf_errs.SetMinimum(2)
-
-pdf_errs.Draw("A3")
-pdf_errs.GetXaxis().SetRangeUser(5.6, 14.4)
-pdf_errs.GetXaxis().SetTitle("#sqrt{s} (TeV)")
-pdf_errs.GetYaxis().SetTitle("#sigma_{pp #rightarrow %s}(pb)" % args.analysis)
-xsec_graph.Draw("3")
+first_plot.Draw("A3")
+first_plot.GetXaxis().SetRangeUser(5.6, 14.35)
+first_plot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
+first_plot.GetYaxis().SetTitle("#sigma_{pp #rightarrow %s}(pb)" % args.analysis)
+if pdf_errs:
+    xsec_graph.Draw("3")
 
 xsec_graph_clone = xsec_graph.Clone()
 xsec_graph_clone.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
@@ -136,46 +143,64 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-
-data_graph.Draw("P same")
-sys_errors.Draw("P same")
-atlas_data_graph.Draw("P same")
-atlas_sys_errors.Draw("P same")
+if args.include_lo:
+    mcfm_lo_graph = errorPlotFromFile("data/%s_MCFM_published_lo_values.txt" % args.analysis)[0]
+    mcfm_lo_graph.SetFillColor(ROOT.TColor.GetColor("#A3DFFF"))
+    mcfm_lo_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+    mcfm_lo_graph.Draw("3 same")                               
+    mcfm_lo_graph_clone = mcfm_lo_graph.Clone()
+    mcfm_lo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#004D00"))
+    mcfm_lo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+    mcfm_lo_graph_clone.Draw("CX")
+if not args.nodata:
+    data_graph.Draw("P same")
+    sys_errors.Draw("P same")
+    atlas_data_graph.Draw("P same")
+    atlas_sys_errors.Draw("P same")
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
-legend = ROOT.TLegend(*([0.20, 0.55, .55, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-legend.AddEntry(data_graph,
-        "CMS %s " % "#sigma_{pp #rightarrow %s} %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
-        "p"
-)
-if args.analysis == "ZZ":
-    legend.AddEntry(zz2l2v_data_graph,
-            "CMS #sigma_{pp #rightarrow ZZ} 2l2#nu channel",
+#legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
+mc_legend = ROOT.TLegend(*([0.18, 0.55, .53, .78] if args.analysis == "ZZ" else [0.20, 0.71, 0.55, 0.79]))
+data_legend = ROOT.TLegend(*([0.18, 0.78, .53, .90] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
+if not args.nodata:
+    data_legend.AddEntry(data_graph,
+            "CMS %s" % ("" if args.analysis == "WZ" else "4l channel"),
             "p"
     )
-legend.AddEntry(atlas_data_graph,
-        "ATLAS %s " % "#sigma_{pp #rightarrow %s} %s channel" % (("WZ", "3l#nu") if args.analysis == "WZ" else ("ZZ", "4l")),
-        "p"
-)
 if args.analysis == "ZZ":
-    legend.AddEntry(nnlo_graph,
-            "#splitline{#sigma_{NNLO (qq/qg/gg)} Cascioli et. al.}"
-            "{#scale[0.6]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
+    data_legend.AddEntry(zz2l2v_data_graph,
+            "CMS 2l2#nu channel",
+            "p"
+    )
+if not args.nodata:
+    data_legend.AddEntry(atlas_data_graph,
+            "ATLAS %s" % ("" if args.analysis == "WZ" else "4l channel"),
+            "p"
+    )
+if args.include_lo:
+    mc_legend.AddEntry(mcfm_lo_graph,
+            "LO",
+            "fl"
+    )
+if args.analysis == "ZZ":
+    mc_legend.AddEntry(nnlo_graph,
+            "#splitline{#sigma_{NNLO (qq+qg+gg)} Cascioli et. al.}"
+            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
             "lf"
     )
-    legend.AddEntry(mcfm_nlo_graph,
+    mc_legend.AddEntry(mcfm_nlo_graph,
             "#splitline{#sigma_{NLO+gg} Campbell et. al.}"
-            "{#scale[0.6]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
+            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
             "lf"
     )
-legend.AddEntry(xsec_graph,
-       #"#sigma_{pp #rightarrow WZ} Theory",
-        "#splitline{#sigma_{NLO%s, M_{Z}#in[60, 120] GeV} MCFM}" 
-        "{#scale[0.6]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= M_{%s}}}" % 
+mc_legend.AddEntry(xsec_graph,
+       "#splitline{#sigma_{NLO%s} via MCFM}"
+        "{#scale[0.7]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= M_{%s}}}" % 
             (("+gg", "ZZ") if args.analysis == "ZZ" else ("", "WZ")),
         "lf"
 )
-legend.Draw()
+mc_legend.Draw()
+data_legend.Draw()
 ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
