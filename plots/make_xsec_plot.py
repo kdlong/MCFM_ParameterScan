@@ -63,20 +63,23 @@ ROOT.dotrootImport('nsmith-/CMSPlotDecorations')
 parser.add_argument("analysis", choices=["WZ", "ZZ"])
 parser.add_argument("--nodata", action='store_true')
 parser.add_argument("--include_lo", action='store_true')
+parser.add_argument("--include_dynamic", action='store_true')
 
 args = parser.parse_args()
 
-mc_file = "data/%s_scan_values_removebr.txt" % args.analysis
+mc_file = "data/%s_scan_values_removebr_fixedscale.txt" % args.analysis
 #mc_file = "data/%s_MCFM_published_nlo_values.txt" % args.analysis
 if not os.path.isfile(mc_file):
     print "Invalid data file %s" % mc_file
     exit(0)
 
-(xsec_graph, pdf_errs) = errorPlotFromFile(mc_file)
+#(xsec_graph, pdf_errs) = errorPlotFromFile(mc_file)
+xsec_graph = errorPlotFromFile(mc_file)[1]
 xsec_graph.SetLineColor(ROOT.TColor.GetColor("#FFE6EC"))
 xsec_graph.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
 xsec_graph.SetFillColor(ROOT.TColor.GetColor("#FFE6EC"))
 xsec_graph.SetLineWidth(1)
+pdf_errs = 0
 if pdf_errs:
     pdf_errs.SetLineColor(ROOT.TColor.GetColor("#F8D4DA"))
     pdf_errs.SetFillColor(ROOT.TColor.GetColor("#F8D4DA"))
@@ -101,7 +104,7 @@ if not args.nodata:
     atlas_sys_errors.SetLineWidth(2)
     atlas_sys_errors.SetMarkerSize(1)
 first_plot = pdf_errs if pdf_errs else xsec_graph
-first_plot.SetMaximum(23 if args.analysis == "ZZ" else 57)
+first_plot.SetMaximum(23 if args.analysis == "ZZ" else 60)
 if args.analysis == "ZZ" or args.include_lo:
     first_plot.SetMinimum(2)
 
@@ -143,6 +146,19 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
+elif args.include_dynamic:
+#   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
+    mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
+#    if dyn_pdf_errs:
+#        dyn_pdf_errs.SetLineColor(ROOT.TColor.GetColor("#76B371"))
+#        dyn_pdf_errs.SetFillColor(ROOT.TColor.GetColor("#76B371"))
+#        dyn_pdf_errs.Draw("CX")
+    mcfm_dynamic_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#A3DFFF"), 0.4)
+    mcfm_dynamic_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+    mcfm_dynamic_graph.Draw("3 same")                               
+    mcfm_dynamic_graph_clone = mcfm_dynamic_graph.Clone()
+    mcfm_dynamic_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+    mcfm_dynamic_graph_clone.Draw("CX")
 if args.include_lo:
     mcfm_lo_graph = errorPlotFromFile("data/%s_MCFM_published_lo_values.txt" % args.analysis)[0]
     mcfm_lo_graph.SetFillColor(ROOT.TColor.GetColor("#A3DFFF"))
@@ -160,7 +176,9 @@ if not args.nodata:
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.18, 0.55, .53, .78] if args.analysis == "ZZ" else [0.20, 0.71, 0.55, 0.79]))
+mc_legend = ROOT.TLegend(*([0.18, 0.55, .53, .78] if args.analysis == "ZZ" \
+        else ([0.20, 0.71, 0.55, 0.79] if not args.include_dynamic else [0.20, 0.63, 0.55, 0.79]))
+)
 data_legend = ROOT.TLegend(*([0.18, 0.78, .53, .90] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
@@ -182,6 +200,12 @@ if args.include_lo:
             "LO",
             "fl"
     )
+mc_legend.AddEntry(xsec_graph,
+       "#splitline{#sigma_{NLO%s} via MCFM}"
+        "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= M_{Z}}}" % 
+            ("+gg" if args.analysis == "ZZ" else ""),
+        "lf"
+)
 if args.analysis == "ZZ":
     mc_legend.AddEntry(nnlo_graph,
             "#splitline{#sigma_{NNLO (qq+qg+gg)} Cascioli et. al.}"
@@ -193,15 +217,16 @@ if args.analysis == "ZZ":
             "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
             "lf"
     )
-mc_legend.AddEntry(xsec_graph,
-       "#splitline{#sigma_{NLO%s} via MCFM}"
-        "{#scale[0.7]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= M_{%s}}}" % 
-            (("+gg", "ZZ") if args.analysis == "ZZ" else ("", "WZ")),
+elif args.include_dynamic:
+    mc_legend.AddEntry(mcfm_dynamic_graph,
+        "#splitline{#sigma_{NLO} via MCFM}"
+            "{#scale[0.7]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= M_{%s}}}" % args.analysis,
         "lf"
-)
+    )
 mc_legend.Draw()
 data_legend.Draw()
 ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection.pdf" % args.analysis)
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s.pdf" 
+        % (args.analysis, ("_withdynamic" if args.include_dynamic else "")))
