@@ -20,6 +20,8 @@ def errorPlotFromFile(file_name):
     with open(file_name) as input_file:
         for line in input_file:
             num_lines += 1
+            if line[0] == "#":
+                continue
             values = line.split()
             if len(values) < 2:
                 print "Invalid input file %s" % file_name
@@ -36,8 +38,8 @@ def errorPlotFromFile(file_name):
             errorup.append(float(values[2]))
             errordown.append(float(values[3]))
             if len(values) == 6:
-                error2down.append(math.sqrt(float(values[2])**2 + float(values[4])**2))
-                error2up.append(math.sqrt(float(values[3])**2 + float(values[5])**2))
+                error2up.append(math.sqrt(float(values[2])**2 + float(values[4])**2))
+                error2down.append(math.sqrt(float(values[3])**2 + float(values[5])**2))
     error_graph = ROOT.TGraphAsymmErrors(num_lines,
         array('f', xvals),
         array('f', central),
@@ -75,7 +77,6 @@ if not os.path.isfile(mc_file):
 
 #(xsec_graph, pdf_errs) = errorPlotFromFile(mc_file)
 xsec_graph = errorPlotFromFile(mc_file)[1]
-xsec_graph.SetLineColor(ROOT.TColor.GetColor("#FFE6EC"))
 xsec_graph.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
 xsec_graph.SetFillColor(ROOT.TColor.GetColor("#FFE6EC"))
 xsec_graph.SetLineWidth(1)
@@ -111,7 +112,7 @@ if args.analysis == "ZZ" or args.include_lo:
 first_plot.Draw("A3")
 first_plot.GetXaxis().SetRangeUser(5.6, 14.35)
 first_plot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
-first_plot.GetYaxis().SetTitle("#sigma_{pp #rightarrow %s}(pb)" % args.analysis)
+first_plot.GetYaxis().SetTitle("#sigma_{pp #rightarrow %s} (pb)" % args.analysis)
 if pdf_errs:
     xsec_graph.Draw("3")
 
@@ -121,20 +122,20 @@ xsec_graph_clone.Draw("CX")
 
 if args.analysis == "ZZ":
     nnlo_graph = errorPlotFromFile("data/ZZ_nnlo_values.txt")[0]
-    nnlo_graph.SetFillColor(ROOT.TColor.GetColor("#A3DFFF"))
+    nnlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#A3DFFF"), 0.4)
     nnlo_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
     nnlo_graph.Draw("3 same")
     nnlo_graph_clone = nnlo_graph.Clone()
     nnlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
     nnlo_graph_clone.Draw("CX")
     
-    mcfm_nlo_graph = errorPlotFromFile("data/ZZ_MCFM_published_nlo_values.txt")[0]
-    mcfm_nlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#C2FFBD"), 0.4)
-    mcfm_nlo_graph.SetLineColor(ROOT.TColor.GetColor("#004D00"))
-    mcfm_nlo_graph.Draw("3 same")                               
-    mcfm_nlo_graph_clone = mcfm_nlo_graph.Clone()
-    mcfm_nlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#004D00"))
-    mcfm_nlo_graph_clone.Draw("CX")
+#    mcfm_nlo_graph = errorPlotFromFile("data/ZZ_MCFM_published_nlo_values.txt")[0]
+#    mcfm_nlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#C2FFBD"), 0.4)
+#    mcfm_nlo_graph.SetLineColor(ROOT.TColor.GetColor("#004D00"))
+#    mcfm_nlo_graph.Draw("3 same")                               
+#    mcfm_nlo_graph_clone = mcfm_nlo_graph.Clone()
+#    mcfm_nlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#004D00"))
+#    mcfm_nlo_graph_clone.Draw("CX")
 
     (zz2l2v_data_graph, zz2l2v_sys_errors) = errorPlotFromFile("data/ZZ2l2v_CMS_measurements.txt")
     zz2l2v_data_graph.SetMarkerStyle(21)
@@ -176,10 +177,10 @@ if not args.nodata:
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.18, 0.55, .53, .78] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.20, 0.61, .55, .77] if args.analysis == "ZZ" \
         else ([0.20, 0.71, 0.55, 0.79] if not args.include_dynamic else [0.20, 0.63, 0.55, 0.79]))
 )
-data_legend = ROOT.TLegend(*([0.18, 0.78, .53, .90] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
+data_legend = ROOT.TLegend(*([0.18, 0.77, .53, .90] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
             "CMS %s" % ("" if args.analysis == "WZ" else "4l channel"),
@@ -201,22 +202,22 @@ if args.include_lo:
             "fl"
     )
 mc_legend.AddEntry(xsec_graph,
-       "#splitline{#sigma_{NLO%s} via MCFM}"
+       "#splitline{MCFM NLO%s}"
         "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= M_{Z}}}" % 
             ("+gg" if args.analysis == "ZZ" else ""),
         "lf"
 )
 if args.analysis == "ZZ":
     mc_legend.AddEntry(nnlo_graph,
-            "#splitline{#sigma_{NNLO (qq+qg+gg)} Cascioli et. al.}"
-            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
+            "#splitline{MATRIX NNLO (qq+qg+gg)}"
+            "{#scale[0.7]{ NNPDF3.0, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
             "lf"
     )
-    mc_legend.AddEntry(mcfm_nlo_graph,
-            "#splitline{#sigma_{NLO+gg} Campbell et. al.}"
-            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
-            "lf"
-    )
+#    mc_legend.AddEntry(mcfm_nlo_graph,
+#            "#splitline{#sigma_{NLO+gg} Campbell et. al.}"
+#            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
+#            "lf"
+#    )
 elif args.include_dynamic:
     mc_legend.AddEntry(mcfm_dynamic_graph,
         "#splitline{#sigma_{NLO} via MCFM}"
@@ -228,5 +229,6 @@ data_legend.Draw()
 ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
+ROOT.gStyle.SetOptDate(False);
 canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s.pdf" 
         % (args.analysis, ("_withdynamic" if args.include_dynamic else "")))
