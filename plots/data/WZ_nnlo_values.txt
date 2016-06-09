@@ -1,0 +1,12 @@
+# Same k-factor and uncertainty as 7 TeV
+6.4 16.96 1.8% 1.9%
+6.5 17.39 1.8% 1.9% 
+#######
+7 19.567 1.8% 1.9%
+8 24.181 2.0% 1.9%
+# Using the average of the 8 and 13 TeV k-factors and uncertainties
+11.5 41.69 2.1% 2.0%
+13 49.986 2.2% 2.0%
+14 55.607 2.3% 2.0% 
+# Same k-factor and uncertainty as 14 TeV
+14.1 56.18 2.3% 2.0% 

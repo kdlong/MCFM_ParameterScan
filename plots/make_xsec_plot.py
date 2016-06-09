@@ -7,6 +7,7 @@ import math
 import ROOT
 import os
 from array import array
+import datetime
 sys.argv = tmparg
 
 def errorPlotFromFile(file_name):
@@ -19,9 +20,9 @@ def errorPlotFromFile(file_name):
     num_lines = 0
     with open(file_name) as input_file:
         for line in input_file:
-            num_lines += 1
             if line[0] == "#":
                 continue
+            num_lines += 1
             values = line.split()
             if len(values) < 2:
                 print "Invalid input file %s" % file_name
@@ -78,6 +79,7 @@ if not os.path.isfile(mc_file):
 #(xsec_graph, pdf_errs) = errorPlotFromFile(mc_file)
 xsec_graph = errorPlotFromFile(mc_file)[1]
 xsec_graph.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
+xsec_graph.SetLineStyle(9)
 xsec_graph.SetFillColor(ROOT.TColor.GetColor("#FFE6EC"))
 xsec_graph.SetLineWidth(1)
 pdf_errs = 0
@@ -104,13 +106,24 @@ if not args.nodata:
     atlas_sys_errors.SetMarkerStyle(22)
     atlas_sys_errors.SetLineWidth(2)
     atlas_sys_errors.SetMarkerSize(1)
+    if args.analysis == "ZZ":
+        (atlaslv_data_graph, atlaslv_sys_errors) = errorPlotFromFile("data/%s_ATLAS_lv_measurements.txt" % args.analysis)
+        atlaslv_data_graph.SetMarkerStyle(32)
+        atlaslv_data_graph.SetLineWidth(1)
+        atlaslv_data_graph.SetMarkerSize(1)
+        atlaslv_sys_errors.SetMarkerColor(10)
+        atlaslv_sys_errors.SetMarkerStyle(23)
+        atlaslv_sys_errors.SetLineWidth(2)
+        atlaslv_sys_errors.SetMarkerSize(1)
 first_plot = pdf_errs if pdf_errs else xsec_graph
-first_plot.SetMaximum(23 if args.analysis == "ZZ" else 60)
+first_plot.SetMaximum(21 if args.analysis == "ZZ" else 60)
 if args.analysis == "ZZ" or args.include_lo:
-    first_plot.SetMinimum(2)
-
+    first_plot.SetMinimum(3)
+else:
+    first_plot.SetMinimum(10)
 first_plot.Draw("A3")
-first_plot.GetXaxis().SetRangeUser(5.6, 14.35)
+#first_plot.GetXaxis().SetNdivisions(8 + 5*100 + 0*10000) # Primary, Secondary, and Tertiary divisons
+first_plot.GetXaxis().SetRangeUser(6.5, 14.0)
 first_plot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
 first_plot.GetYaxis().SetTitle("#sigma_{pp #rightarrow %s} (pb)" % args.analysis)
 if pdf_errs:
@@ -120,14 +133,13 @@ xsec_graph_clone = xsec_graph.Clone()
 xsec_graph_clone.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
 xsec_graph_clone.Draw("CX")
 
-if args.analysis == "ZZ":
-    nnlo_graph = errorPlotFromFile("data/ZZ_nnlo_values.txt")[0]
-    nnlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#A3DFFF"), 0.4)
-    nnlo_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
-    nnlo_graph.Draw("3 same")
-    nnlo_graph_clone = nnlo_graph.Clone()
-    nnlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
-    nnlo_graph_clone.Draw("CX")
+nnlo_graph = errorPlotFromFile("data/%s_nnlo_values.txt" % args.analysis)[0]
+nnlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#A3DFFF"), 0.4)
+nnlo_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+nnlo_graph.Draw("3 same")
+nnlo_graph_clone = nnlo_graph.Clone()
+nnlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+nnlo_graph_clone.Draw("CX")
     
 #    mcfm_nlo_graph = errorPlotFromFile("data/ZZ_MCFM_published_nlo_values.txt")[0]
 #    mcfm_nlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#C2FFBD"), 0.4)
@@ -137,6 +149,7 @@ if args.analysis == "ZZ":
 #    mcfm_nlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#004D00"))
 #    mcfm_nlo_graph_clone.Draw("CX")
 
+if args.analysis == "ZZ":
     (zz2l2v_data_graph, zz2l2v_sys_errors) = errorPlotFromFile("data/ZZ2l2v_CMS_measurements.txt")
     zz2l2v_data_graph.SetMarkerStyle(21)
     zz2l2v_data_graph.SetLineWidth(1)
@@ -174,16 +187,19 @@ if not args.nodata:
     sys_errors.Draw("P same")
     atlas_data_graph.Draw("P same")
     atlas_sys_errors.Draw("P same")
+    if args.analysis == "ZZ":
+        atlaslv_data_graph.Draw("P same")
+        atlaslv_sys_errors.Draw("P same")
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.20, 0.61, .55, .77] if args.analysis == "ZZ" \
-        else ([0.20, 0.71, 0.55, 0.79] if not args.include_dynamic else [0.20, 0.63, 0.55, 0.79]))
+mc_legend = ROOT.TLegend(*([0.19, 0.575, .6, .725] if args.analysis == "ZZ" \
+        else [0.19, 0.64, 0.60, 0.80])
 )
-data_legend = ROOT.TLegend(*([0.18, 0.77, .53, .90] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
+data_legend = ROOT.TLegend(*([0.19, 0.725, .6, .90] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
-            "CMS %s" % ("" if args.analysis == "WZ" else "4l channel"),
+            " CMS" if args.analysis == "WZ" else "CMS 4l channel",
             "p"
     )
 if args.analysis == "ZZ":
@@ -193,42 +209,57 @@ if args.analysis == "ZZ":
     )
 if not args.nodata:
     data_legend.AddEntry(atlas_data_graph,
-            "ATLAS %s" % ("" if args.analysis == "WZ" else "4l channel"),
+            " ATLAS" if args.analysis == "WZ" else "ATLAS 4l channel",
             "p"
     )
+    if args.analysis == "ZZ":
+        data_legend.AddEntry(atlaslv_data_graph,
+            "ATLAS 4l+2l2#nu", 
+            "p"
+        )
 if args.include_lo:
     mc_legend.AddEntry(mcfm_lo_graph,
             "LO",
             "fl"
     )
-mc_legend.AddEntry(xsec_graph,
-       "#splitline{MCFM NLO%s}"
-        "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= M_{Z}}}" % 
-            ("+gg" if args.analysis == "ZZ" else ""),
-        "lf"
-)
 if args.analysis == "ZZ":
     mc_legend.AddEntry(nnlo_graph,
             "#splitline{MATRIX NNLO (qq+qg+gg)}"
-            "{#scale[0.7]{ NNPDF3.0, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
+            "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= m_{Z}}}",
             "lf"
     )
-#    mc_legend.AddEntry(mcfm_nlo_graph,
-#            "#splitline{#sigma_{NLO+gg} Campbell et. al.}"
-#            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= M_{Z}}}",
-#            "lf"
-#    )
-elif args.include_dynamic:
+else:
+    mc_legend.AddEntry(nnlo_graph,
+            "#splitline{MATRIX NNLO}"
+            "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= #frac{1}{ 2} (m_{Z}+ m_{W})}}",
+            "lf"
+    )
+if args.include_dynamic:
     mc_legend.AddEntry(mcfm_dynamic_graph,
         "#splitline{#sigma_{NLO} via MCFM}"
-            "{#scale[0.7]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= M_{%s}}}" % args.analysis,
+            "{#scale[0.7]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= m_{%s}}}" % args.analysis,
         "lf"
     )
+mc_legend.AddEntry(xsec_graph,
+       "#splitline{MCFM NLO%s}"
+        "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= %s}}" % 
+            (("+gg", "m_{Z}") if args.analysis == "ZZ" else ("", "#frac{1}{ 2} (m_{Z}+ m_{W})")),
+        "lf"
+)
+#    mc_legend.AddEntry(mcfm_nlo_graph,
+#            "#splitline{#sigma_{NLO+gg} Campbell et. al.}"
+#            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= m_{Z}}}",
+#            "lf"
+#    )
 mc_legend.Draw()
 data_legend.Draw()
-ROOT.CMSlumi(canvas,0, 33)
+#ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
 ROOT.gStyle.SetOptDate(False);
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s.pdf" 
-        % (args.analysis, ("_withdynamic" if args.include_dynamic else "")))
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.pdf" 
+        % (args.analysis, 
+            ("_withdynamic" if args.include_dynamic else ""),
+            '{:%Y-%m-%d}'.format(datetime.datetime.today())
+        )
+)
