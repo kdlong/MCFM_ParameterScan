@@ -63,6 +63,8 @@ def errorPlotFromFile(file_name):
 parser = argparse.ArgumentParser()
 ROOT.gROOT.SetBatch()
 ROOT.dotrootImport('nsmith-/CMSPlotDecorations')
+ROOT.gStyle.SetEndErrorSize(18)
+ROOT.gStyle.SetLineStyleString(11,"80 40");
 parser.add_argument("analysis", choices=["WZ", "ZZ"])
 parser.add_argument("--nodata", action='store_true')
 parser.add_argument("--include_lo", action='store_true')
@@ -79,42 +81,42 @@ if not os.path.isfile(mc_file):
 #(xsec_graph, pdf_errs) = errorPlotFromFile(mc_file)
 xsec_graph = errorPlotFromFile(mc_file)[1]
 xsec_graph.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
-xsec_graph.SetLineStyle(9)
+xsec_graph.SetLineStyle(11)
 xsec_graph.SetFillColor(ROOT.TColor.GetColor("#FFE6EC"))
-xsec_graph.SetLineWidth(1)
+xsec_graph.SetLineWidth(2)
 pdf_errs = 0
 if pdf_errs:
     pdf_errs.SetLineColor(ROOT.TColor.GetColor("#F8D4DA"))
     pdf_errs.SetFillColor(ROOT.TColor.GetColor("#F8D4DA"))
 
-canvas = ROOT.TCanvas("canvas", "canvas", 600, 600)
+canvas = ROOT.TCanvas("canvas", "canvas", 2400, 2400)
 if not args.nodata:
     (data_graph, sys_errors) = errorPlotFromFile("data/%s_CMS_measurements.txt" % args.analysis)
     data_graph.SetMarkerStyle(20)
     data_graph.SetLineWidth(1)
-    data_graph.SetMarkerSize(1)
+    data_graph.SetMarkerSize(4)
 
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
-    sys_errors.SetMarkerSize(1)
+    sys_errors.SetMarkerSize(4)
     #sys_errors.SetMarkerColor(10)
     (atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
-    atlas_data_graph.SetMarkerStyle(26)
+    atlas_data_graph.SetMarkerStyle(22)
     atlas_data_graph.SetLineWidth(1)
-    atlas_data_graph.SetMarkerSize(1)
+    atlas_data_graph.SetMarkerSize(5)
     atlas_sys_errors.SetMarkerColor(10)
     atlas_sys_errors.SetMarkerStyle(22)
     atlas_sys_errors.SetLineWidth(2)
-    atlas_sys_errors.SetMarkerSize(1)
+    atlas_sys_errors.SetMarkerSize(4)
     if args.analysis == "ZZ":
         (atlaslv_data_graph, atlaslv_sys_errors) = errorPlotFromFile("data/%s_ATLAS_lv_measurements.txt" % args.analysis)
-        atlaslv_data_graph.SetMarkerStyle(32)
+        atlaslv_data_graph.SetMarkerStyle(23)
         atlaslv_data_graph.SetLineWidth(1)
-        atlaslv_data_graph.SetMarkerSize(1)
+        atlaslv_data_graph.SetMarkerSize(5)
         atlaslv_sys_errors.SetMarkerColor(10)
         atlaslv_sys_errors.SetMarkerStyle(23)
         atlaslv_sys_errors.SetLineWidth(2)
-        atlaslv_sys_errors.SetMarkerSize(1)
+        atlaslv_sys_errors.SetMarkerSize(4)
 first_plot = pdf_errs if pdf_errs else xsec_graph
 first_plot.SetMaximum(21 if args.analysis == "ZZ" else 60)
 if args.analysis == "ZZ" or args.include_lo:
@@ -136,6 +138,7 @@ xsec_graph_clone.Draw("CX")
 nnlo_graph = errorPlotFromFile("data/%s_nnlo_values.txt" % args.analysis)[0]
 nnlo_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#A3DFFF"), 0.4)
 nnlo_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
+nnlo_graph.SetLineWidth(2)
 nnlo_graph.Draw("3 same")
 nnlo_graph_clone = nnlo_graph.Clone()
 nnlo_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
@@ -153,11 +156,11 @@ if args.analysis == "ZZ":
     (zz2l2v_data_graph, zz2l2v_sys_errors) = errorPlotFromFile("data/ZZ2l2v_CMS_measurements.txt")
     zz2l2v_data_graph.SetMarkerStyle(21)
     zz2l2v_data_graph.SetLineWidth(1)
-    zz2l2v_data_graph.SetMarkerSize(1)
+    zz2l2v_data_graph.SetMarkerSize(4)
     zz2l2v_sys_errors.SetMarkerStyle(21)
     zz2l2v_sys_errors.SetLineWidth(2)
     #zz2l2v_sys_errors.SetMarkerColor(10)
-    zz2l2v_sys_errors.SetMarkerSize(1)
+    zz2l2v_sys_errors.SetMarkerSize(4)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
 elif args.include_dynamic:
@@ -190,31 +193,30 @@ if not args.nodata:
     if args.analysis == "ZZ":
         atlaslv_data_graph.Draw("P same")
         atlaslv_sys_errors.Draw("P same")
-ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.19, 0.575, .6, .725] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.170, 0.595, .60, .745] if args.analysis == "ZZ" \
         else [0.19, 0.64, 0.60, 0.80])
 )
-data_legend = ROOT.TLegend(*([0.19, 0.725, .6, .90] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
+data_legend = ROOT.TLegend(*([0.171, 0.745, .60, .91] if args.analysis == "ZZ" else [0.20, 0.80, 0.55, 0.90]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
-            " CMS" if args.analysis == "WZ" else "CMS 4l channel",
+            " CMS" if args.analysis == "WZ" else "\\text{CMS} \\,\\, 4\\ell \\,\\, \\text{channel}",
             "p"
     )
 if args.analysis == "ZZ":
     data_legend.AddEntry(zz2l2v_data_graph,
-            "CMS 2l2#nu channel",
+            "\\text{CMS} \\,\\, 2\\ell2\\nu\\,\\, \\text{channel}",
             "p"
     )
 if not args.nodata:
     data_legend.AddEntry(atlas_data_graph,
-            " ATLAS" if args.analysis == "WZ" else "ATLAS 4l channel",
+            " ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell \\,\\, \\text{channel}",
             "p"
     )
     if args.analysis == "ZZ":
         data_legend.AddEntry(atlaslv_data_graph,
-            "ATLAS 4l+2l2#nu", 
+            "\\text{ATLAS} \\,\\, 4\\ell+2\\ell2\\nu", 
             "p"
         )
 if args.include_lo:
@@ -225,39 +227,56 @@ if args.include_lo:
 if args.analysis == "ZZ":
     mc_legend.AddEntry(nnlo_graph,
             "#splitline{MATRIX NNLO (qq+qg+gg)}"
-            "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= m_{Z}}}",
+            "{#scale[0.85]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= m_{Z}}}",
             "lf"
     )
 else:
     mc_legend.AddEntry(nnlo_graph,
             "#splitline{MATRIX NNLO}"
-            "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= #frac{1}{ 2} (m_{Z}+ m_{W})}}",
+            "{#scale[0.85]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= #frac{1}{ 2} (m_{Z}+ m_{W})}}",
             "lf"
     )
 if args.include_dynamic:
     mc_legend.AddEntry(mcfm_dynamic_graph,
         "#splitline{#sigma_{NLO} via MCFM}"
-            "{#scale[0.7]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= m_{%s}}}" % args.analysis,
+            "{#scale[0.85]{NNPDF3.0, dynamic #mu_{F}= #mu_{R}= m_{%s}}}" % args.analysis,
         "lf"
     )
 mc_legend.AddEntry(xsec_graph,
        "#splitline{MCFM NLO%s}"
-        "{#scale[0.7]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= %s}}" % 
+        "{#scale[0.85]{NNPDF3.0, fixed #mu_{F}= #mu_{R}= %s}}" % 
             (("+gg", "m_{Z}") if args.analysis == "ZZ" else ("", "#frac{1}{ 2} (m_{Z}+ m_{W})")),
         "lf"
 )
 #    mc_legend.AddEntry(mcfm_nlo_graph,
 #            "#splitline{#sigma_{NLO+gg} Campbell et. al.}"
-#            "{#scale[0.7]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= m_{Z}}}",
+#            "{#scale[0.85]{ MMSTW2008, fixed #mu_{F}= #mu_{R}= m_{Z}}}",
 #            "lf"
 #    )
 mc_legend.Draw()
 data_legend.Draw()
+
+legend_mark = ROOT.TMarker(10,22,20)
+legend_mark.SetMarkerSize(4)
+legend_mark.SetMarkerStyle(22)
+legend_mark.SetMarkerColor(10)
+legend_mark.SetX(7.245)
+legend_mark.SetY(17.845)
+legend_mark.Draw("P same")
+legend_mark2 = legend_mark.Clone()
+legend_mark2.SetY(16.965)
+legend_mark2.SetMarkerStyle(23)
+legend_mark2.Draw("P same")
+
+print "GetErrorX()"
+print ROOT.gStyle.GetErrorX()
+print "GetEndErrorSize()"
+print ROOT.gStyle.GetEndErrorSize()
 #ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
-
+ROOT.gPad.GetFrame().Draw()
 ROOT.gStyle.SetOptDate(False);
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.pdf" 
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.C" 
         % (args.analysis, 
             ("_withdynamic" if args.include_dynamic else ""),
             '{:%Y-%m-%d}'.format(datetime.datetime.today())
