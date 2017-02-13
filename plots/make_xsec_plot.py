@@ -98,15 +98,16 @@ if not args.nodata:
     sys_errors.SetLineWidth(2)
     sys_errors.SetMarkerSize(1)
     (atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
+    atlas_data_graph.SetMarkerSize(1)
     if args.analysis == "WZ":
         atlas_data_graph.SetMarkerStyle(26)
         atlas_sys_errors.SetMarkerStyle(22)
         atlas_sys_errors.SetMarkerColor(10)
+        atlas_data_graph.SetMarkerSize(1.1)
     else:
         atlas_data_graph.SetMarkerStyle(24)
         atlas_sys_errors.SetMarkerStyle(24)
     atlas_data_graph.SetLineWidth(1)
-    atlas_data_graph.SetMarkerSize(1.1)
     atlas_sys_errors.SetLineWidth(2)
     atlas_sys_errors.SetMarkerSize(1.0)
     if args.analysis == "ZZ":
@@ -117,7 +118,7 @@ if not args.nodata:
         #atlaslv_sys_errors.SetMarkerColor(10)
         atlaslv_sys_errors.SetMarkerStyle(25)
         atlaslv_sys_errors.SetLineWidth(2)
-        atlaslv_sys_errors.SetMarkerSize(1.2)
+        atlaslv_sys_errors.SetMarkerSize(1)
 first_plot = pdf_errs if pdf_errs else xsec_graph
 first_plot.SetMaximum(21 if args.analysis == "ZZ" else 60)
 if args.analysis == "ZZ" or args.include_lo:
