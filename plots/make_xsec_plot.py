@@ -102,14 +102,22 @@ if not args.nodata:
     if args.analysis == "WZ":
         atlas_data_graph.SetMarkerStyle(26)
         atlas_sys_errors.SetMarkerStyle(22)
-        atlas_sys_errors.SetMarkerColor(10)
-        atlas_data_graph.SetMarkerSize(1.1)
+        # dark green
+        marker_color = ROOT.TColor.GetColor("#569932")
+        color = "Green"
+        # purple
+        #marker_color = ROOT.TColor.GetColor("#8872B2")
+        #color = "Purple"
+        
+        atlas_sys_errors.SetMarkerColor(marker_color)
+        atlas_data_graph.SetMarkerSize(1.15)
+        atlas_sys_errors.SetMarkerSize(1.10)
     else:
         atlas_data_graph.SetMarkerStyle(24)
         atlas_sys_errors.SetMarkerStyle(24)
+        atlas_sys_errors.SetMarkerSize(1.0)
     atlas_data_graph.SetLineWidth(1)
     atlas_sys_errors.SetLineWidth(2)
-    atlas_sys_errors.SetMarkerSize(1.0)
     if args.analysis == "ZZ":
         (atlaslv_data_graph, atlaslv_sys_errors) = errorPlotFromFile("data/%s_ATLAS_lv_measurements.txt" % args.analysis)
         atlaslv_data_graph.SetMarkerStyle(25)
@@ -134,7 +142,6 @@ first_plot.GetXaxis().SetTitle("#sqrt{s} (TeV)")
 first_plot.GetYaxis().SetTitle("#sigma_{pp #rightarrow %s} (pb)" % args.analysis)
 if pdf_errs:
     xsec_graph.Draw("3")
-
 xsec_graph_clone = xsec_graph.Clone()
 xsec_graph_clone.SetLineColor(ROOT.TColor.GetColor("#ca0020"))
 xsec_graph_clone.Draw("CX")
@@ -215,7 +222,7 @@ if args.analysis == "ZZ":
             "p"
     )
 if not args.nodata:
-    data_legend.AddEntry(atlas_data_graph,
+    data_legend.AddEntry(atlas_sys_errors,
             "ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell \\,\\, \\text{channel}",
             "p"
     )
@@ -253,16 +260,30 @@ mc_legend.AddEntry(xsec_graph,
             (("+gg", "m_{Z}") if args.analysis == "ZZ" else ("", "#frac{1}{ 2} (m_{Z}+ m_{W})")),
         "lf"
 )
+
 mc_legend.Draw()
 data_legend.Draw()
 #ROOT.CMSlumi(canvas,0, 33)
+legend_mark = ROOT.TMarker(10,22,20)
+legend_mark.SetMarkerSize(1.1)
+legend_mark.SetMarkerStyle(26)
+#legend_mark.SetMarkerColorAlpha(ROOT.kBlack, 1)
+legend_mark.SetX(7.28)
+legend_mark.SetY(54.265)
+legend_mark.Draw("P same")
+#legend_mark2 = legend_mark.Clone()
+#legend_mark2.SetY(16.965)
+#legend_mark2.SetMarkerStyle(26)
+#legend_mark2.Draw("P same")
+
 ROOT.gPad.RedrawAxis()
 
 ROOT.gStyle.SetOptDate(False);
 #canvas.Print("~/public_html/DibosonPlots/%sCrossSection2016Data%s_%s.eps" 
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.eps" 
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s-fill%s.eps" 
         % (args.analysis, 
             ("_withdynamic" if args.include_dynamic else ""),
-            '{:%Y-%m-%d}'.format(datetime.datetime.today())
+            '{:%Y-%m-%d}'.format(datetime.datetime.today()),
+            color
         )
 )
