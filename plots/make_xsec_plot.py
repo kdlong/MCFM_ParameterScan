@@ -108,6 +108,8 @@ if not args.nodata:
         # purple
         #marker_color = ROOT.TColor.GetColor("#8872B2")
         #color = "Purple"
+        marker_color = ROOT.TColor.GetColor("#7ac651")
+        color = "LightGreen"
         
         atlas_sys_errors.SetMarkerColor(marker_color)
         atlas_data_graph.SetMarkerSize(1.15)
