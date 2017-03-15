@@ -112,10 +112,10 @@ if not args.nodata:
     atlas_sys_errors.SetMarkerSize(1.0)
     if args.analysis == "ZZ":
         (atlaslv_data_graph, atlaslv_sys_errors) = errorPlotFromFile("data/%s_ATLAS_lv_measurements.txt" % args.analysis)
-        atlaslv_data_graph.SetMarkerStyle(25)
+        atlaslv_data_graph.SetMarkerStyle(21)
         atlaslv_data_graph.SetLineWidth(1)
         atlaslv_data_graph.SetMarkerSize(1)
-        #atlaslv_sys_errors.SetMarkerColor(10)
+        atlaslv_data_graph.SetMarkerColor(10)
         atlaslv_sys_errors.SetMarkerStyle(25)
         atlaslv_sys_errors.SetLineWidth(2)
         atlaslv_sys_errors.SetMarkerSize(1)
@@ -220,7 +220,7 @@ if not args.nodata:
             "p"
     )
     if args.analysis == "ZZ":
-        data_legend.AddEntry(atlaslv_data_graph,
+        data_legend.AddEntry(atlaslv_sys_errors,
             "\\text{ATLAS} \\,\\, 4\\ell+2\\ell2\\nu", 
             "p"
         )

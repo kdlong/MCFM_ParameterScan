@@ -3,6 +3,6 @@
 # From http://cms-results.web.cern.ch/cms-results/public-results/publications/SMP-13-005/index.html
 8 7.7 0.5 0.5 0.67 0.60 
 # From SMP-16-001
-# 13 14.6 1.9 1.8 0.67 0.54
+13.2 14.6 1.9 1.8 0.67 0.54
 # 2017 numbers
-13 18.2 0.6 0.6 1.42 1.42 
+13 17.8 0.6 0.6 1.123 1.063 
