@@ -93,6 +93,17 @@ if not args.nodata:
     data_graph.SetMarkerStyle(20)
     data_graph.SetLineWidth(1)
     data_graph.SetMarkerSize(1)
+    
+    if args.analysis == "ZZ":
+        (data_graph_2015, sys_errors_2015) = errorPlotFromFile("data/%s_CMS_2015_measurements.txt" % args.analysis)
+        data_graph_2015.SetMarkerStyle(20)
+        data_graph_2015.SetMarkerColor(ROOT.kGray)
+        data_graph_2015.SetLineWidth(1)
+        data_graph_2015.SetMarkerSize(1)
+        
+        sys_errors_2015.SetMarkerStyle(24)
+        sys_errors_2015.SetLineWidth(2)
+        sys_errors_2015.SetMarkerSize(1)
 
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
@@ -167,6 +178,8 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
+    data_graph_2015.Draw("P same")
+    sys_errors_2015.Draw("P same")
 elif args.include_dynamic:
 #   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
     mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
@@ -200,13 +213,18 @@ if not args.nodata:
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.170, 0.595, .60, .745] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.170, 0.555, .60, .695] if args.analysis == "ZZ" \
         else [0.16, 0.672, 0.67, 0.83])
 )
-data_legend = ROOT.TLegend(*([0.171, 0.745, .60, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
+data_legend = ROOT.TLegend(*([0.171, 0.695, .60, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
-            "CMS" if args.analysis == "WZ" else "\\text{CMS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+            "CMS" if args.analysis == "WZ" else \
+                "\\text{CMS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+            "p"
+    )
+    data_legend.AddEntry(data_graph_2015,
+            "\\text{CMS} \\,\\, 4\\ell \\,\\, 2015",
             "p"
     )
 if args.analysis == "ZZ":
@@ -253,7 +271,9 @@ mc_legend.AddEntry(xsec_graph,
             (("+gg", "m_{Z}") if args.analysis == "ZZ" else ("", "#frac{1}{ 2} (m_{Z}+ m_{W})")),
         "lf"
 )
+mc_legend.SetFillStyle(0)
 mc_legend.Draw()
+data_legend.SetFillStyle(0)
 data_legend.Draw()
 #ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
@@ -261,6 +281,12 @@ ROOT.gPad.RedrawAxis()
 ROOT.gStyle.SetOptDate(False);
 #canvas.Print("~/public_html/DibosonPlots/%sCrossSection2016Data%s_%s.eps" 
 canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.eps" 
+        % (args.analysis, 
+            ("_withdynamic" if args.include_dynamic else ""),
+            '{:%Y-%m-%d}'.format(datetime.datetime.today())
+        )
+)
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.C" 
         % (args.analysis, 
             ("_withdynamic" if args.include_dynamic else ""),
             '{:%Y-%m-%d}'.format(datetime.datetime.today())
