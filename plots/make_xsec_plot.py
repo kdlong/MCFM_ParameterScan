@@ -205,36 +205,36 @@ if args.include_lo:
 if not args.nodata:
     data_graph.Draw("P same")
     sys_errors.Draw("P same")
-    atlas_data_graph.Draw("P same")
-    atlas_sys_errors.Draw("P same")
-    if args.analysis == "ZZ":
-        atlaslv_data_graph.Draw("P same")
-        atlaslv_sys_errors.Draw("P same")
+    #atlas_data_graph.Draw("P same")
+    #atlas_sys_errors.Draw("P same")
+    #if args.analysis == "ZZ":
+    #    atlaslv_data_graph.Draw("P same")
+    #    atlaslv_sys_errors.Draw("P same")
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.170, 0.555, .60, .695] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.170, 0.645, .60, .785] if args.analysis == "ZZ" \
         else [0.16, 0.672, 0.67, 0.83])
 )
-data_legend = ROOT.TLegend(*([0.171, 0.695, .60, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
+data_legend = ROOT.TLegend(*([0.182, 0.785, .52, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
             "CMS" if args.analysis == "WZ" else \
-                "\\text{CMS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+                "\\, \\, \\text{CMS} \\,\\, 4\\ell",
             "p"
     )
     data_legend.AddEntry(data_graph_2015,
-            "\\text{CMS} \\,\\, 4\\ell \\,\\, 2015",
+            "\\, \\, \\text{CMS} \\,\\, 4\\ell \\,\\, 2015",
             "p"
     )
 if args.analysis == "ZZ":
     data_legend.AddEntry(zz2l2v_data_graph,
-            "\\text{CMS} \\,\\, 2\\ell2\\nu\\,\\, \\text{channel}",
+            "\\, \\, \\text{CMS} \\,\\, 2\\ell2\\nu",
             "p"
     )
-if not args.nodata:
+if not args.nodata and False:
     data_legend.AddEntry(atlas_data_graph,
-            "ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+            "ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell",
             "p"
     )
     if args.analysis == "ZZ":
@@ -275,18 +275,27 @@ mc_legend.SetFillStyle(0)
 mc_legend.Draw()
 data_legend.SetFillStyle(0)
 data_legend.Draw()
+
+legend_mark = ROOT.TMarker(10,22,20)
+legend_mark.SetMarkerSize(0.9)
+legend_mark.SetMarkerStyle(24)
+legend_mark.SetMarkerColor(ROOT.kBlack)
+legend_mark.SetX(7.24)
+legend_mark.SetY(18.75)
+legend_mark.Draw("P same")
+
 #ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
 ROOT.gStyle.SetOptDate(False);
 #canvas.Print("~/public_html/DibosonPlots/%sCrossSection2016Data%s_%s.eps" 
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.eps" 
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection%sOnlyCMS_%s.eps" 
         % (args.analysis, 
             ("_withdynamic" if args.include_dynamic else ""),
             '{:%Y-%m-%d}'.format(datetime.datetime.today())
         )
 )
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.C" 
+canvas.Print("~/public_html/DibosonPlots/%sCrossSection%sOnlyCMS_%s.C" 
         % (args.analysis, 
             ("_withdynamic" if args.include_dynamic else ""),
             '{:%Y-%m-%d}'.format(datetime.datetime.today())
