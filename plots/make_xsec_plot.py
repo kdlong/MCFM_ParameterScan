@@ -220,7 +220,7 @@ data_legend = ROOT.TLegend(*([0.171, 0.695, .60, .91] if args.analysis == "ZZ" e
 if not args.nodata:
     data_legend.AddEntry(data_graph,
             "CMS" if args.analysis == "WZ" else \
-                "\\text{CMS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+                "\\text{CMS} \\,\\, 4\\ell",
             "p"
     )
     data_legend.AddEntry(data_graph_2015,
@@ -229,12 +229,12 @@ if not args.nodata:
     )
 if args.analysis == "ZZ":
     data_legend.AddEntry(zz2l2v_data_graph,
-            "\\text{CMS} \\,\\, 2\\ell2\\nu\\,\\, \\text{channel}",
+            "\\text{CMS} \\,\\, 2\\ell2\\nu\\,\\",
             "p"
     )
 if not args.nodata:
     data_legend.AddEntry(atlas_data_graph,
-            "ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+            "ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell",
             "p"
     )
     if args.analysis == "ZZ":
@@ -277,6 +277,14 @@ data_legend.SetFillStyle(0)
 data_legend.Draw()
 #ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
+
+legend_mark = ROOT.TMarker(10,22,20)
+legend_mark.SetMarkerSize(0.9)
+legend_mark.SetMarkerStyle(24)
+legend_mark.SetMarkerColor(ROOT.kBlack)
+legend_mark.SetX(7.24)
+legend_mark.SetY(18.7)
+legend_mark.Draw("P same")
 
 ROOT.gStyle.SetOptDate(False);
 #canvas.Print("~/public_html/DibosonPlots/%sCrossSection2016Data%s_%s.eps" 
