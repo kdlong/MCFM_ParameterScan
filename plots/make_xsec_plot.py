@@ -9,6 +9,16 @@ import os
 from array import array
 import datetime
 sys.argv = tmparg
+def getVal(value):
+    if isinstance(value, float):
+        return value
+    val = 1 
+    if "*" in value:
+        for i in value.split("*"):
+            val *= float(i)
+        return val
+    else:
+        return float(value)
 
 def errorPlotFromFile(file_name):
     xvals = []
@@ -27,8 +37,8 @@ def errorPlotFromFile(file_name):
             if len(values) < 2:
                 print "Invalid input file %s" % file_name
                 exit(0)
-            xvals.append(float(values[0]))
-            central.append(float(values[1]))
+            xvals.append(getVal(values[0]))
+            central.append(getVal(values[1]))
             if len(values) < 3:
                 print "No error values found in input file %s" % file_name
                 continue
@@ -36,11 +46,11 @@ def errorPlotFromFile(file_name):
                 values[2] = float(values[1])*float(values[2].strip("%"))/100
             if "%" in values[3]:
                 values[3] = float(values[1])*float(values[3].strip("%"))/100
-            errorup.append(float(values[2]))
-            errordown.append(float(values[3]))
+            errorup.append(getVal(values[2]))
+            errordown.append(getVal(values[3]))
             if len(values) == 6:
-                error2up.append(math.sqrt(float(values[2])**2 + float(values[4])**2))
-                error2down.append(math.sqrt(float(values[3])**2 + float(values[5])**2))
+                error2up.append(math.sqrt(getVal(values[2])**2 + getVal(values[4])**2))
+                error2down.append(math.sqrt(getVal(values[3])**2 + getVal(values[5])**2))
     error_graph = ROOT.TGraphAsymmErrors(num_lines,
         array('f', xvals),
         array('f', central),
@@ -96,14 +106,16 @@ if not args.nodata:
     
     if args.analysis == "ZZ":
         (data_graph_2016, sys_errors_2016) = errorPlotFromFile("data/%s_CMS_2016_measurements.txt" % args.analysis)
-        data_graph_2016.SetMarkerStyle(20)
-        data_graph_2016.SetMarkerColor(ROOT.kGray)
+        data_graph_2016.SetMarkerStyle(29)
+        #green
+        marker_color = ROOT.TColor.GetColor("#569932")
+        data_graph_2016.SetMarkerColor(marker_color)
         data_graph_2016.SetLineWidth(1)
-        data_graph_2016.SetMarkerSize(1)
+        data_graph_2016.SetMarkerSize(1.3)
         
-        sys_errors_2016.SetMarkerStyle(24)
+        sys_errors_2016.SetMarkerStyle(30)
         sys_errors_2016.SetLineWidth(2)
-        sys_errors_2016.SetMarkerSize(1)
+        sys_errors_2016.SetMarkerSize(1.4)
 
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
@@ -213,33 +225,32 @@ if not args.nodata:
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.170, 0.555, .60, .695] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.170, 0.565, .60, .705] if args.analysis == "ZZ" \
         else [0.16, 0.672, 0.67, 0.83])
 )
-data_legend = ROOT.TLegend(*([0.171, 0.695, .60, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
+data_legend = ROOT.TLegend(*([0.161, 0.705, .69, .92] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
     data_legend.AddEntry(data_graph_2016,
-            "\\text{CMS} \\,\\, 4\\ell \\,\\,(2016)",
+            "\\!\\!\\! \\text{CMS} \\,\\, 4\\ell \\,\\,(2016)",
             "p"
     )
     data_legend.AddEntry(data_graph,
-            "CMS" if args.analysis == "WZ" else \
-                "\\text{CMS} \\,\\, 4\\ell",
+            "CMS" if args.analysis == "WZ" else "\\!\\!\\! \\text{CMS} \\,\\, 4\\ell",
             "p"
     )
 if args.analysis == "ZZ":
     data_legend.AddEntry(zz2l2v_data_graph,
-            "\\text{CMS} \\,\\, 2\\ell2\\nu\\,\\",
+            "\\!\\!\\! \\text{CMS} \\,\\, 2\\ell2\\nu",
             "p"
     )
 if not args.nodata:
     data_legend.AddEntry(atlas_data_graph,
-            "ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell",
+            "ATLAS" if args.analysis == "WZ" else "\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell \\,\\, (\\times 1.016)",
             "p"
     )
     if args.analysis == "ZZ":
         data_legend.AddEntry(atlaslv_sys_errors,
-            "\\text{ATLAS} \\,\\, 4\\ell+2\\ell2\\nu", 
+            "\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell\\!+\\!2\\ell2\\nu \\,\\, (\\times 1.016)", 
             "p"
         )
 if args.include_lo:
@@ -279,11 +290,11 @@ data_legend.Draw()
 ROOT.gPad.RedrawAxis()
 
 legend_mark = ROOT.TMarker(10,22,20)
-legend_mark.SetMarkerSize(0.9)
-legend_mark.SetMarkerStyle(24)
+legend_mark.SetMarkerSize(1.3)
+legend_mark.SetMarkerStyle(30)
 legend_mark.SetMarkerColor(ROOT.kBlack)
-legend_mark.SetX(7.24)
-legend_mark.SetY(18.7)
+legend_mark.SetX(7.265)
+legend_mark.SetY(19.86)
 legend_mark.Draw("P same")
 
 ROOT.gStyle.SetOptDate(False);
