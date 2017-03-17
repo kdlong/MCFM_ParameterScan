@@ -92,24 +92,24 @@ if not args.nodata:
     (data_graph, sys_errors) = errorPlotFromFile("data/%s_CMS_measurements.txt" % args.analysis)
     data_graph.SetMarkerStyle(20)
     data_graph.SetLineWidth(1)
-    data_graph.SetMarkerSize(1)
+    data_graph.SetMarkerSize(1.1)
     
     if args.analysis == "ZZ":
         (data_graph_2016, sys_errors_2016) = errorPlotFromFile("data/%s_CMS_2016_measurements.txt" % args.analysis)
         data_graph_2016.SetMarkerStyle(20)
         data_graph_2016.SetMarkerColor(ROOT.kGray)
         data_graph_2016.SetLineWidth(1)
-        data_graph_2016.SetMarkerSize(1)
+        data_graph_2016.SetMarkerSize(1.1)
         
         sys_errors_2016.SetMarkerStyle(24)
         sys_errors_2016.SetLineWidth(2)
-        sys_errors_2016.SetMarkerSize(1)
+        sys_errors_2016.SetMarkerSize(1.1)
 
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
-    sys_errors.SetMarkerSize(1)
+    sys_errors.SetMarkerSize(1.1)
     (atlas_data_graph, atlas_sys_errors) = errorPlotFromFile("data/%s_ATLAS_measurements.txt" % args.analysis)
-    atlas_data_graph.SetMarkerSize(1)
+    atlas_data_graph.SetMarkerSize(1.1)
     if args.analysis == "WZ":
         atlas_data_graph.SetMarkerStyle(26)
         atlas_sys_errors.SetMarkerStyle(22)
@@ -125,11 +125,11 @@ if not args.nodata:
         (atlaslv_data_graph, atlaslv_sys_errors) = errorPlotFromFile("data/%s_ATLAS_lv_measurements.txt" % args.analysis)
         atlaslv_data_graph.SetMarkerStyle(21)
         atlaslv_data_graph.SetLineWidth(1)
-        atlaslv_data_graph.SetMarkerSize(1)
+        atlaslv_data_graph.SetMarkerSize(1.1)
         atlaslv_data_graph.SetMarkerColor(10)
         atlaslv_sys_errors.SetMarkerStyle(25)
         atlaslv_sys_errors.SetLineWidth(2)
-        atlaslv_sys_errors.SetMarkerSize(1)
+        atlaslv_sys_errors.SetMarkerSize(1.1)
 first_plot = pdf_errs if pdf_errs else xsec_graph
 first_plot.SetMaximum(21 if args.analysis == "ZZ" else 60)
 if args.analysis == "ZZ" or args.include_lo:
@@ -171,15 +171,15 @@ if args.analysis == "ZZ":
     (zz2l2v_data_graph, zz2l2v_sys_errors) = errorPlotFromFile("data/ZZ2l2v_CMS_measurements.txt")
     zz2l2v_data_graph.SetMarkerStyle(21)
     zz2l2v_data_graph.SetLineWidth(1)
-    zz2l2v_data_graph.SetMarkerSize(1)
+    zz2l2v_data_graph.SetMarkerSize(1.1)
     zz2l2v_sys_errors.SetMarkerStyle(21)
     zz2l2v_sys_errors.SetLineWidth(2)
     #zz2l2v_sys_errors.SetMarkerColor(10)
-    zz2l2v_sys_errors.SetMarkerSize(1)
+    zz2l2v_sys_errors.SetMarkerSize(1.1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-    data_graph_2016.Draw("P same")
-    sys_errors_2016.Draw("P same")
+    #data_graph_2016.Draw("P same")
+    #sys_errors_2016.Draw("P same")
 elif args.include_dynamic:
 #   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
     mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
@@ -213,23 +213,23 @@ if not args.nodata:
 ROOT.gStyle.SetEndErrorSize(4)
 #legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
 #legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.170, 0.645, .60, .785] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.15, 0.605, .66, .805] if args.analysis == "ZZ" \
         else [0.16, 0.672, 0.67, 0.83])
 )
-data_legend = ROOT.TLegend(*([0.182, 0.785, .52, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
+data_legend = ROOT.TLegend(*([0.175, 0.805, .52, .93] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
             "CMS" if args.analysis == "WZ" else \
-                "\\, \\, \\text{CMS} \\,\\, 4\\ell",
+                "\\, \\, \\, \\text{CMS} \\,\\, 4\\ell",
             "p"
     )
-    data_legend.AddEntry(data_graph_2016,
-            "\\, \\, \\text{CMS} \\,\\, 4\\ell \\,\\, (2016)",
-            "p"
-    )
+    #data_legend.AddEntry(data_graph_2016,
+    #        "\\, \\, \\text{CMS} \\,\\, 4\\ell \\,\\, (2016)",
+    #        "p"
+    #)
 if args.analysis == "ZZ":
     data_legend.AddEntry(zz2l2v_data_graph,
-            "\\, \\, \\text{CMS} \\,\\, 2\\ell2\\nu",
+            "\\, \\, \\, \\text{CMS} \\,\\, 2\\ell2\\nu",
             "p"
     )
 if not args.nodata and False:
