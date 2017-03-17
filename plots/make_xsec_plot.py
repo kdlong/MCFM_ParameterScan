@@ -95,15 +95,15 @@ if not args.nodata:
     data_graph.SetMarkerSize(1)
     
     if args.analysis == "ZZ":
-        (data_graph_2015, sys_errors_2015) = errorPlotFromFile("data/%s_CMS_2015_measurements.txt" % args.analysis)
-        data_graph_2015.SetMarkerStyle(20)
-        data_graph_2015.SetMarkerColor(ROOT.kGray)
-        data_graph_2015.SetLineWidth(1)
-        data_graph_2015.SetMarkerSize(1)
+        (data_graph_2016, sys_errors_2016) = errorPlotFromFile("data/%s_CMS_2016_measurements.txt" % args.analysis)
+        data_graph_2016.SetMarkerStyle(20)
+        data_graph_2016.SetMarkerColor(ROOT.kGray)
+        data_graph_2016.SetLineWidth(1)
+        data_graph_2016.SetMarkerSize(1)
         
-        sys_errors_2015.SetMarkerStyle(24)
-        sys_errors_2015.SetLineWidth(2)
-        sys_errors_2015.SetMarkerSize(1)
+        sys_errors_2016.SetMarkerStyle(24)
+        sys_errors_2016.SetLineWidth(2)
+        sys_errors_2016.SetMarkerSize(1)
 
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
@@ -178,8 +178,8 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-    data_graph_2015.Draw("P same")
-    sys_errors_2015.Draw("P same")
+    data_graph_2016.Draw("P same")
+    sys_errors_2016.Draw("P same")
 elif args.include_dynamic:
 #   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
     mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
@@ -218,13 +218,13 @@ mc_legend = ROOT.TLegend(*([0.170, 0.555, .60, .695] if args.analysis == "ZZ" \
 )
 data_legend = ROOT.TLegend(*([0.171, 0.695, .60, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
+    data_legend.AddEntry(data_graph_2016,
+            "\\text{CMS} \\,\\, 4\\ell \\,\\,(2016)",
+            "p"
+    )
     data_legend.AddEntry(data_graph,
             "CMS" if args.analysis == "WZ" else \
                 "\\text{CMS} \\,\\, 4\\ell",
-            "p"
-    )
-    data_legend.AddEntry(data_graph_2015,
-            "\\text{CMS} \\,\\, 4\\ell \\,\\, 2015",
             "p"
     )
 if args.analysis == "ZZ":
