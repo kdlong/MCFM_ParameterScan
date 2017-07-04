@@ -8,6 +8,7 @@ import ROOT
 import os
 from array import array
 import datetime
+import subprocess
 sys.argv = tmparg
 def getVal(value):
     if isinstance(value, float):
@@ -104,19 +105,6 @@ if not args.nodata:
     data_graph.SetLineWidth(1)
     data_graph.SetMarkerSize(1)
     
-    if args.analysis == "ZZ":
-        (data_graph_2016, sys_errors_2016) = errorPlotFromFile("data/%s_CMS_2016_measurements.txt" % args.analysis)
-        data_graph_2016.SetMarkerStyle(29)
-        #green
-        marker_color = ROOT.TColor.GetColor("#569932")
-        data_graph_2016.SetMarkerColor(marker_color)
-        data_graph_2016.SetLineWidth(1)
-        data_graph_2016.SetMarkerSize(1.3)
-        
-        sys_errors_2016.SetMarkerStyle(30)
-        sys_errors_2016.SetLineWidth(2)
-        sys_errors_2016.SetMarkerSize(1.4)
-
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
     sys_errors.SetMarkerSize(1)
@@ -190,8 +178,6 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-    data_graph_2016.Draw("P same")
-    sys_errors_2016.Draw("P same")
 elif args.include_dynamic:
 #   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
     mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
@@ -230,10 +216,6 @@ mc_legend = ROOT.TLegend(*([0.170, 0.565, .60, .705] if args.analysis == "ZZ" \
 )
 data_legend = ROOT.TLegend(*([0.161, 0.705, .69, .92] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
-    data_legend.AddEntry(data_graph_2016,
-            "\\!\\!\\! \\text{CMS} \\,\\, 4\\ell \\,\\,(2016)",
-            "p"
-    )
     data_legend.AddEntry(data_graph,
             "CMS" if args.analysis == "WZ" else "\\!\\!\\! \\text{CMS} \\,\\, 4\\ell",
             "p"
@@ -289,25 +271,12 @@ data_legend.Draw()
 #ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
-legend_mark = ROOT.TMarker(10,22,20)
-legend_mark.SetMarkerSize(1.3)
-legend_mark.SetMarkerStyle(30)
-legend_mark.SetMarkerColor(ROOT.kBlack)
-legend_mark.SetX(7.265)
-legend_mark.SetY(19.86)
-legend_mark.Draw("P same")
-
 ROOT.gStyle.SetOptDate(False);
-#canvas.Print("~/public_html/DibosonPlots/%sCrossSection2016Data%s_%s.eps" 
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.eps" 
-        % (args.analysis, 
-            ("_withdynamic" if args.include_dynamic else ""),
-            '{:%Y-%m-%d}'.format(datetime.datetime.today())
-        )
-)
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.C" 
-        % (args.analysis, 
-            ("_withdynamic" if args.include_dynamic else ""),
-            '{:%Y-%m-%d}'.format(datetime.datetime.today())
-        )
-)
+
+output_name = os.path.expanduser("~/public_html/DibosonPlots/%sCrossSection%s_%s") \
+        % (args.analysis, \
+            ("_withdynamic" if args.include_dynamic else ""),\
+            '{:%Y-%m-%d}'.format(datetime.datetime.today()))
+        
+canvas.Print(output_name+".eps")
+subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"])
