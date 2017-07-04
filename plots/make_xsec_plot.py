@@ -8,6 +8,7 @@ import ROOT
 import os
 from array import array
 import datetime
+import subprocess
 sys.argv = tmparg
 
 def errorPlotFromFile(file_name):
@@ -258,11 +259,11 @@ data_legend.Draw()
 #ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
 
-ROOT.gStyle.SetOptDate(False);
-#canvas.Print("~/public_html/DibosonPlots/%sCrossSection2016Data%s_%s.eps" 
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.eps" 
-        % (args.analysis, 
-            ("_withdynamic" if args.include_dynamic else ""),
-            '{:%Y-%m-%d}'.format(datetime.datetime.today())
-        )
-)
+ROOT.gStyle.SetOptDate(False)
+output_name = os.path.expanduser("~/public_html/DibosonPlots/%sCrossSection%s_%s") \
+        % (args.analysis, \
+            ("_withdynamic" if args.include_dynamic else ""),\
+            '{:%Y-%m-%d}'.format(datetime.datetime.today()))
+        
+canvas.Print(output_name+".eps")
+subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"])
