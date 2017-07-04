@@ -209,30 +209,28 @@ if not args.nodata:
         atlaslv_data_graph.Draw("P same")
         atlaslv_sys_errors.Draw("P same")
 ROOT.gStyle.SetEndErrorSize(4)
-#legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
-#legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.170, 0.565, .60, .705] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.170, 0.595, .60, .755] if args.analysis == "ZZ" \
         else [0.16, 0.672, 0.67, 0.83])
 )
-data_legend = ROOT.TLegend(*([0.161, 0.705, .69, .92] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
+data_legend = ROOT.TLegend(*([0.149, 0.755, .75, .92] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
-            "CMS" if args.analysis == "WZ" else "\\!\\!\\! \\text{CMS} \\,\\, 4\\ell",
+            "CMS" if args.analysis == "WZ" else "\\!\\!\\!\\! \\text{CMS} \\,\\, 4\\ell",
             "p"
     )
 if args.analysis == "ZZ":
     data_legend.AddEntry(zz2l2v_data_graph,
-            "\\!\\!\\! \\text{CMS} \\,\\, 2\\ell2\\nu",
+            "\\!\\!\\!\\! \\text{CMS} \\,\\, 2\\ell2\\nu",
             "p"
     )
 if not args.nodata:
     data_legend.AddEntry(atlas_data_graph,
-            "ATLAS" if args.analysis == "WZ" else "\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell \\,\\, (\\times 1.016)",
+            "ATLAS" if args.analysis == "WZ" else "\\!\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell \\,\\, (\\times 1.016)",
             "p"
     )
     if args.analysis == "ZZ":
         data_legend.AddEntry(atlaslv_sys_errors,
-            "\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell\\!+\\!2\\ell2\\nu \\,\\, (\\times 1.016)", 
+            "\\!\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell\\!+\\!2\\ell2\\nu \\,\\, (\\times 1.016)", 
             "p"
         )
 if args.include_lo:
