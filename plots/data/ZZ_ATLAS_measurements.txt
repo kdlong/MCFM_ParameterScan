@@ -3,4 +3,6 @@
 # 7.9 7.1*1.016 0.5*1.016 0.4*1.016 0.36*1.016 0.36*1.016
 # From https://arxiv.org/pdf/1709.07703.pdf
 # Note that format is statUp statDown SysUp (no stat) sysDown
-12.93 17.3*1.016 0.6*1.016 0.6*1.016  0.781*1.016  0.781*1.016
+# Also note that numbers are slightly modified so that
+# The total syst comes to 0.9 as reported in the paper
+12.93 17.3*1.016 0.575*1.016 0.575*1.016  0.745*1.016  0.745*1.016
