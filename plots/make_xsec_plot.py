@@ -178,19 +178,21 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-elif args.include_dynamic:
-#   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
-    mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
-#    if dyn_pdf_errs:
-#        dyn_pdf_errs.SetLineColor(ROOT.TColor.GetColor("#76B371"))
-#        dyn_pdf_errs.SetFillColor(ROOT.TColor.GetColor("#76B371"))
-#        dyn_pdf_errs.Draw("CX")
-    mcfm_dynamic_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#A3DFFF"), 0.4)
-    mcfm_dynamic_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
-    mcfm_dynamic_graph.Draw("3 same")                               
-    mcfm_dynamic_graph_clone = mcfm_dynamic_graph.Clone()
-    mcfm_dynamic_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
-    mcfm_dynamic_graph_clone.Draw("CX")
+else:
+    (data_graph_2016, sys_errors_2016) = errorPlotFromFile("data/%s_CMS_2016_measurement.txt" % args.analysis)
+    data_graph_2016.SetMarkerStyle(29)
+    print data_graph_2016, sys_errors_2016
+    #green
+    marker_color = ROOT.TColor.GetColor("#569932")
+    data_graph_2016.SetMarkerColor(marker_color)
+    data_graph_2016.SetLineWidth(1)
+    data_graph_2016.SetMarkerSize(1.3)
+    
+    sys_errors_2016.SetMarkerStyle(30)
+    sys_errors_2016.SetLineWidth(2)
+    sys_errors_2016.SetMarkerSize(1.4)
+    data_graph_2016.Draw("P same")
+    sys_errors_2016.Draw("P same")
 if args.include_lo:
     mcfm_lo_graph = errorPlotFromFile("data/%s_MCFM_published_lo_values.txt" % args.analysis)[0]
     mcfm_lo_graph.SetFillColor(ROOT.TColor.GetColor("#A3DFFF"))
@@ -273,7 +275,7 @@ ROOT.gStyle.SetOptDate(False);
 
 output_name = os.path.expanduser("~/public_html/DibosonPlots/%sCrossSection%s_%s") \
         % (args.analysis, \
-            ("_withdynamic" if args.include_dynamic else ""),\
+            ("_preliminary" if args.analysis == "WZ" else ""),\
             '{:%Y-%m-%d}'.format(datetime.datetime.today()))
         
 canvas.Print(output_name+".eps")
