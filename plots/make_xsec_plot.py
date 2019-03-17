@@ -178,21 +178,6 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-else:
-    (data_graph_2016, sys_errors_2016) = errorPlotFromFile("data/%s_CMS_2016_measurement.txt" % args.analysis)
-    data_graph_2016.SetMarkerStyle(29)
-    print data_graph_2016, sys_errors_2016
-    #green
-    marker_color = ROOT.TColor.GetColor("#569932")
-    data_graph_2016.SetMarkerColor(marker_color)
-    data_graph_2016.SetLineWidth(1)
-    data_graph_2016.SetMarkerSize(1.3)
-    
-    sys_errors_2016.SetMarkerStyle(30)
-    sys_errors_2016.SetLineWidth(2)
-    sys_errors_2016.SetMarkerSize(1.4)
-    data_graph_2016.Draw("P same")
-    sys_errors_2016.Draw("P same")
 if args.include_lo:
     mcfm_lo_graph = errorPlotFromFile("data/%s_MCFM_published_lo_values.txt" % args.analysis)[0]
     mcfm_lo_graph.SetFillColor(ROOT.TColor.GetColor("#A3DFFF"))
@@ -273,7 +258,7 @@ ROOT.gPad.RedrawAxis()
 
 ROOT.gStyle.SetOptDate(False);
 
-output_name = os.path.expanduser("~/public_html/DibosonPlots/%sCrossSection%s_%s") \
+output_name = os.path.expanduser("~/public_html/DibosonPlots/%sCrossSection%s_Preliminary_%s") \
         % (args.analysis, \
             ("_preliminary" if args.analysis == "WZ" else ""),\
             '{:%Y-%m-%d}'.format(datetime.datetime.today()))
