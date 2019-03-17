@@ -10,6 +10,16 @@ from array import array
 import datetime
 import subprocess
 sys.argv = tmparg
+def getVal(value):
+    if isinstance(value, float):
+        return value
+    val = 1 
+    if "*" in value:
+        for i in value.split("*"):
+            val *= float(i)
+        return val
+    else:
+        return float(value)
 
 def errorPlotFromFile(file_name):
     xvals = []
@@ -28,8 +38,8 @@ def errorPlotFromFile(file_name):
             if len(values) < 2:
                 print "Invalid input file %s" % file_name
                 exit(0)
-            xvals.append(float(values[0]))
-            central.append(float(values[1]))
+            xvals.append(getVal(values[0]))
+            central.append(getVal(values[1]))
             if len(values) < 3:
                 print "No error values found in input file %s" % file_name
                 continue
@@ -37,11 +47,11 @@ def errorPlotFromFile(file_name):
                 values[2] = float(values[1])*float(values[2].strip("%"))/100
             if "%" in values[3]:
                 values[3] = float(values[1])*float(values[3].strip("%"))/100
-            errorup.append(float(values[2]))
-            errordown.append(float(values[3]))
+            errorup.append(getVal(values[2]))
+            errordown.append(getVal(values[3]))
             if len(values) == 6:
-                error2up.append(math.sqrt(float(values[2])**2 + float(values[4])**2))
-                error2down.append(math.sqrt(float(values[3])**2 + float(values[5])**2))
+                error2up.append(math.sqrt(getVal(values[2])**2 + getVal(values[4])**2))
+                error2down.append(math.sqrt(getVal(values[3])**2 + getVal(values[5])**2))
     error_graph = ROOT.TGraphAsymmErrors(num_lines,
         array('f', xvals),
         array('f', central),
@@ -94,7 +104,7 @@ if not args.nodata:
     data_graph.SetMarkerStyle(20)
     data_graph.SetLineWidth(1)
     data_graph.SetMarkerSize(1)
-
+    
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
     sys_errors.SetMarkerSize(1)
@@ -168,19 +178,6 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-elif args.include_dynamic:
-#   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
-    mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
-#    if dyn_pdf_errs:
-#        dyn_pdf_errs.SetLineColor(ROOT.TColor.GetColor("#76B371"))
-#        dyn_pdf_errs.SetFillColor(ROOT.TColor.GetColor("#76B371"))
-#        dyn_pdf_errs.Draw("CX")
-    mcfm_dynamic_graph.SetFillColorAlpha(ROOT.TColor.GetColor("#A3DFFF"), 0.4)
-    mcfm_dynamic_graph.SetLineColor(ROOT.TColor.GetColor("#002D80"))
-    mcfm_dynamic_graph.Draw("3 same")                               
-    mcfm_dynamic_graph_clone = mcfm_dynamic_graph.Clone()
-    mcfm_dynamic_graph_clone.SetLineColor(ROOT.TColor.GetColor("#002D80"))
-    mcfm_dynamic_graph_clone.Draw("CX")
 if args.include_lo:
     mcfm_lo_graph = errorPlotFromFile("data/%s_MCFM_published_lo_values.txt" % args.analysis)[0]
     mcfm_lo_graph.SetFillColor(ROOT.TColor.GetColor("#A3DFFF"))
@@ -199,30 +196,28 @@ if not args.nodata:
         atlaslv_data_graph.Draw("P same")
         atlaslv_sys_errors.Draw("P same")
 ROOT.gStyle.SetEndErrorSize(4)
-#legend = ROOT.TLegend(0.20, 0.65 - (0.10 if args.analysis == "ZZ" else 0.0), 0.55, 0.85 )
-#legend = ROOT.TLegend(*([0.18, 0.55, .53, .90] if args.analysis == "ZZ" else [0.20, 0.65, 0.55, 0.85]))
-mc_legend = ROOT.TLegend(*([0.170, 0.595, .60, .745] if args.analysis == "ZZ" \
+mc_legend = ROOT.TLegend(*([0.170, 0.595, .60, .755] if args.analysis == "ZZ" \
         else [0.16, 0.672, 0.67, 0.83])
 )
-data_legend = ROOT.TLegend(*([0.171, 0.745, .60, .91] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
+data_legend = ROOT.TLegend(*([0.149, 0.755, .75, .92] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
     data_legend.AddEntry(data_graph,
-            "CMS" if args.analysis == "WZ" else "\\text{CMS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+            "CMS" if args.analysis == "WZ" else "\\!\\!\\!\\! \\text{CMS} \\,\\, 4\\ell",
             "p"
     )
 if args.analysis == "ZZ":
     data_legend.AddEntry(zz2l2v_data_graph,
-            "\\text{CMS} \\,\\, 2\\ell2\\nu\\,\\, \\text{channel}",
+            "\\!\\!\\!\\! \\text{CMS} \\,\\, 2\\ell2\\nu",
             "p"
     )
 if not args.nodata:
     data_legend.AddEntry(atlas_data_graph,
-            "ATLAS" if args.analysis == "WZ" else "\\text{ATLAS} \\,\\, 4\\ell \\,\\, \\text{channel}",
+            "ATLAS" if args.analysis == "WZ" else "\\!\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell \\,\\, (\\times 1.016)",
             "p"
     )
     if args.analysis == "ZZ":
         data_legend.AddEntry(atlaslv_sys_errors,
-            "\\text{ATLAS} \\,\\, 4\\ell+2\\ell2\\nu", 
+            "\\!\\!\\!\\! \\text{ATLAS} \\,\\, 4\\ell\\!+\\!2\\ell2\\nu \\,\\, (\\times 1.016)", 
             "p"
         )
 if args.include_lo:
@@ -254,7 +249,9 @@ mc_legend.AddEntry(xsec_graph,
             (("+gg", "m_{Z}") if args.analysis == "ZZ" else ("", "#frac{1}{ 2} (m_{Z}+ m_{W})")),
         "lf"
 )
+mc_legend.SetFillStyle(0)
 mc_legend.Draw()
+data_legend.SetFillStyle(0)
 data_legend.Draw()
 #ROOT.CMSlumi(canvas,0, 33)
 ROOT.gPad.RedrawAxis()
