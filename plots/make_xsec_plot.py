@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import subprocess
 import sys
 import argparse
 tmparg = sys.argv[:]
@@ -105,17 +106,17 @@ if not args.nodata:
     data_graph.SetMarkerSize(1)
     
     if args.analysis == "ZZ":
-        (data_graph_2016, sys_errors_2016) = errorPlotFromFile("data/%s_CMS_2016_measurements.txt" % args.analysis)
-        data_graph_2016.SetMarkerStyle(29)
+        (data_graph_RunII, sys_errors_RunII) = errorPlotFromFile("data/%s_CMS_RunII_measurements.txt" % args.analysis)
+        data_graph_RunII.SetMarkerStyle(29)
         #green
         marker_color = ROOT.TColor.GetColor("#569932")
-        data_graph_2016.SetMarkerColor(marker_color)
-        data_graph_2016.SetLineWidth(1)
-        data_graph_2016.SetMarkerSize(1.3)
+        data_graph_RunII.SetMarkerColor(marker_color)
+        data_graph_RunII.SetLineWidth(1)
+        data_graph_RunII.SetMarkerSize(1.3)
         
-        sys_errors_2016.SetMarkerStyle(30)
-        sys_errors_2016.SetLineWidth(2)
-        sys_errors_2016.SetMarkerSize(1.4)
+        sys_errors_RunII.SetMarkerStyle(30)
+        sys_errors_RunII.SetLineWidth(2)
+        sys_errors_RunII.SetMarkerSize(1.4)
 
     sys_errors.SetMarkerStyle(20)
     sys_errors.SetLineWidth(2)
@@ -190,8 +191,8 @@ if args.analysis == "ZZ":
     zz2l2v_sys_errors.SetMarkerSize(1)
     zz2l2v_data_graph.Draw("P same")
     zz2l2v_sys_errors.Draw("P same")
-    data_graph_2016.Draw("P same")
-    sys_errors_2016.Draw("P same")
+    data_graph_RunII.Draw("P same")
+    sys_errors_RunII.Draw("P same")
 elif args.include_dynamic:
 #   (mcfm_dynamic_graph, dyn_pdf_errs) = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")
     mcfm_dynamic_graph = errorPlotFromFile("data/WZ_scan_values_removebr_dynamicscale.txt")[1]
@@ -230,8 +231,8 @@ mc_legend = ROOT.TLegend(*([0.170, 0.565, .60, .705] if args.analysis == "ZZ" \
 )
 data_legend = ROOT.TLegend(*([0.161, 0.705, .69, .92] if args.analysis == "ZZ" else [0.169, 0.83, 0.65, 0.92]))
 if not args.nodata:
-    data_legend.AddEntry(data_graph_2016,
-            "\\!\\!\\! \\text{CMS} \\,\\, 4\\ell \\,\\,(2016)",
+    data_legend.AddEntry(data_graph_RunII,
+            "\\!\\!\\! \\text{CMS} \\,\\, 4\\ell \\,\\,(137\\,\\mathrm{fb}^{-1})",
             "p"
     )
     data_legend.AddEntry(data_graph,
@@ -297,17 +298,19 @@ legend_mark.SetX(7.265)
 legend_mark.SetY(19.86)
 legend_mark.Draw("P same")
 
+preliminary_text = ROOT.TPaveText(0.50, 0.88, 0.64, 0.91, "NDCnb")
+preliminary_text.SetFillColor(0)
+preliminary_text.SetFillStyle(0)
+preliminary_text.SetLineColor(0)
+preliminary_text.SetTextFont(42)
+preliminary_text.AddText("#it{Preliminary}")
+preliminary_text.Draw()
+
 ROOT.gStyle.SetOptDate(False);
-#canvas.Print("~/public_html/DibosonPlots/%sCrossSection2016Data%s_%s.eps" 
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.eps" 
-        % (args.analysis, 
-            ("_withdynamic" if args.include_dynamic else ""),
-            '{:%Y-%m-%d}'.format(datetime.datetime.today())
-        )
-)
-canvas.Print("~/public_html/DibosonPlots/%sCrossSection%s_%s.C" 
-        % (args.analysis, 
-            ("_withdynamic" if args.include_dynamic else ""),
-            '{:%Y-%m-%d}'.format(datetime.datetime.today())
-        )
-)
+output_name = os.path.expanduser("~/public_html/DibosonPlots/%sCrossSection%s_%s") \
+        % (args.analysis, \
+            ("_withdynamic" if args.include_dynamic else ""),\
+            '{:%Y-%m-%d}'.format(datetime.datetime.today()))
+        
+canvas.Print(output_name+".eps")
+subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"])
