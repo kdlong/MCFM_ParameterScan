@@ -298,14 +298,6 @@ legend_mark.SetX(7.265)
 legend_mark.SetY(19.86)
 legend_mark.Draw("P same")
 
-preliminary_text = ROOT.TPaveText(0.50, 0.88, 0.64, 0.91, "NDCnb")
-preliminary_text.SetFillColor(0)
-preliminary_text.SetFillStyle(0)
-preliminary_text.SetLineColor(0)
-preliminary_text.SetTextFont(42)
-preliminary_text.AddText("#it{Preliminary}")
-preliminary_text.Draw()
-
 ROOT.gStyle.SetOptDate(False);
 output_name = os.path.expanduser("~/public_html/DibosonPlots/%sCrossSection%s_%s") \
         % (args.analysis, \
